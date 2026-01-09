@@ -1,60 +1,45 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../../db/sequelize';
-import { ArticleEntity } from "../../../domain/article/article.entity";
+import { ProductEntity } from "../../../domain/product/product.entity";
 
-export class SequelizeArticle extends Model<ArticleEntity, Omit<ArticleEntity, 'id'>> {
+export class SequelizeProduct extends Model<ProductEntity, Omit<ProductEntity, 'id'>> {
   declare cmp_uuid: string;
-  declare art_uuid: string;
-  declare art_code: string;    
-  declare art_name: string;
-  declare art_image: string;
-  declare art_description: string;    
-  declare art_pricecost: number;
-  declare art_stock: number;
-  declare sup_uuid: string;
+  declare pro_uuid: string;
+  declare pro_code: string;    
+  declare pro_name: string;
+  declare pro_image: string;
+  declare pro_description: string;
   declare itm_uuid: string;
   declare cat_uuid: string;
-  declare art_createdat: Date;
-  declare art_updatedat: Date;
+  declare pro_createdat: Date;
+  declare pro_updatedat: Date;
 }
 
-SequelizeArticle.init({
+SequelizeProduct.init({
   cmp_uuid: {
     type: DataTypes.STRING, 
     primaryKey: true/*,
     autoIncrement: true*/
   },
-  art_uuid: {
+  pro_uuid: {
     type: DataTypes.STRING, 
     primaryKey: true/*,
     autoIncrement: true*/
   },
-  art_code: {
+  pro_code: {
     type: DataTypes.STRING, 
     primaryKey: true/*,
     autoIncrement: true*/
   },
-  art_name: {
+  pro_name: {
     type: DataTypes.STRING,
     allowNull: true
   },
-  art_image: {
+  pro_image: {
     type: DataTypes.STRING,
     allowNull: true
   },
-  art_description: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  art_pricecost: {
-    type: DataTypes.NUMBER,
-    allowNull: true
-  },
-  art_stock: {
-    type: DataTypes.NUMBER,
-    allowNull: true
-  },
-  sup_uuid: {
+  pro_description: {
     type: DataTypes.STRING,
     allowNull: true
   },
@@ -66,23 +51,23 @@ SequelizeArticle.init({
     type: DataTypes.STRING,
     allowNull: true
   },
-  art_createdat: {
+  pro_createdat: {
     type: DataTypes.DATE,
     allowNull: true
   },
-  art_updatedat: {
+  pro_updatedat: {
     type: DataTypes.DATE,
     allowNull: true
   }
 }, {
   sequelize,
   timestamps: true,
-  createdAt: 'art_createdat',
-  updatedAt: 'art_updatedat',
-  tableName: 'art_articles'
+  createdAt: 'pro_createdat',
+  updatedAt: 'pro_updatedat',
+  tableName: 'pro_products'
 });
 
 // Sincronizar (solo en desarrollo)
 if (process.env.NODE_ENV !== "production") {
-    SequelizeArticle.sync();
+    SequelizeProduct.sync();
 }
