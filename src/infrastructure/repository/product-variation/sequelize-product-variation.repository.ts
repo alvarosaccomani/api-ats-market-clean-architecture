@@ -6,12 +6,22 @@ import { Op } from "sequelize";
 export class SequelizeRepository implements ProductVariationRepository {
     async getProductVariations(cmp_uuid: string, pro_uuid: string): Promise<ProductVariationEntity[] | null> {
         try {
-            let config = {
-                where: {
-                    cmp_uuid: cmp_uuid ?? null,
-                    pro_uuid: pro_uuid ?? null
+            let config = {}
+            if(!pro_uuid) {
+                config = {
+                    where: {
+                        cmp_uuid: cmp_uuid ?? null
+                    }
+                }
+            } else {
+                config = {
+                    where: {
+                        cmp_uuid: cmp_uuid ?? null,
+                        pro_uuid: pro_uuid ?? null
+                    }
                 }
             }
+            console.info(config);
             const products = await SequelizeProductVariation.findAll(config);
             if(!products) {
                 throw new Error(`No hay varaciones de productos`)
