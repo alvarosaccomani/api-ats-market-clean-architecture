@@ -53,6 +53,7 @@ export class ProductUseCase {
                 pro_description: product.pro_description,
                 itm_uuid: product.itm_uuid,
                 cat_uuid: product.cat_uuid,
+                productVariations: product.productVariations,
                 pro_createdat: TimezoneConverter.toIsoStringInTimezone(product.pro_createdat, 'America/Buenos_Aires'),
                 pro_updatedat: TimezoneConverter.toIsoStringInTimezone(product.pro_updatedat, 'America/Buenos_Aires')
             };

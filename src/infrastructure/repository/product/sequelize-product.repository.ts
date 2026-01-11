@@ -1,5 +1,6 @@
 import { ProductEntity, ProductUpdateData } from "../../../domain/product/product.entity";
 import { ProductRepository } from "../../../domain/product/product.repository";
+import { SequelizeProductVariation } from "../../model/product-variation/product-variation.model";
 import { SequelizeProduct } from "../../model/product/product.model";
 import { Op } from "sequelize";
 
@@ -27,7 +28,13 @@ export class SequelizeRepository implements ProductRepository {
                 where: { 
                     cmp_uuid: cmp_uuid ?? null,
                     pro_uuid: pro_uuid ?? null
-                } 
+                },
+                include: [
+                    {
+                        model: SequelizeProductVariation,
+                        as: 'productVariations'
+                    }
+                ]
             });
             if(!product) {
                 throw new Error(`No hay product con el Id: ${cmp_uuid}, ${pro_uuid}`);

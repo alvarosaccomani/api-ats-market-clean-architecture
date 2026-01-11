@@ -1,3 +1,5 @@
+import { ProductVariationEntity } from "../product-variation/product-variation.entity";
+
 export interface ProductEntity {
     cmp_uuid: string,
     pro_uuid: string,
@@ -8,7 +10,8 @@ export interface ProductEntity {
     itm_uuid: string,
     cat_uuid: string,
     pro_createdat: Date,
-    pro_updatedat: Date
+    pro_updatedat: Date,
+    productVariations?: ProductVariationEntity[]
 }
 
 //Update
