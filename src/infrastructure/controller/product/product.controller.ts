@@ -26,14 +26,14 @@ export class ProductController {
                 });
             }
             if (page && perPage) {
-                const product = await this.productUseCase.getProducts(cmp_uuid, pro_uuid)
+                const product = await this.productUseCase.getProducts(cmp_uuid)
                 return res.status(200).send({
                     success: true,
                     message: 'Articulos retornados.',
                     ...paginator(product, page, perPage)
                 });
             } else {
-                const product = await this.productUseCase.getProducts(cmp_uuid, pro_uuid)
+                const product = await this.productUseCase.getProducts(cmp_uuid)
                 return res.status(200).send({
                     success: true,
                     message: 'Articulos retornados.',

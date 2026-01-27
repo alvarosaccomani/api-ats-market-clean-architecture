@@ -18,9 +18,9 @@ export class ProductUseCase {
         this.findProductByName = this.findProductByName.bind(this);
     }
 
-    public async getProducts(cmp_uuid: string, pro_uuid: string) {
+    public async getProducts(cmp_uuid: string) {
         try {
-            const product = await this.productRepository.getProducts(cmp_uuid, pro_uuid);
+            const product = await this.productRepository.getProducts(cmp_uuid);
             if(!product) {
                 throw new Error('No hay articulos.');
             }
@@ -172,9 +172,9 @@ export class ProductUseCase {
         }
     }
 
-    public async findProductByName(cmp_uuid: string, pro_uuid: string, pro_name: string, excludeUuid?: string) {
+    public async findProductByName(cmp_uuid: string, pro_name: string, excludeUuid?: string) {
         try {
-            const product = await this.productRepository.findProductByName(cmp_uuid, pro_uuid, pro_name, excludeUuid)
+            const product = await this.productRepository.findProductByName(cmp_uuid, pro_name, excludeUuid)
             if(product) {
                 throw new Error(`Ya existe un articulo con el nombre ${pro_name}.`);
             }
