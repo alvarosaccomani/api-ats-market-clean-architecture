@@ -1,6 +1,7 @@
 import { v4 as uuid } from "uuid";
 import moment from 'moment';
 import { ProductEntity } from "./product.entity";
+import { ProductVariationEntity } from "../product-variation/product-variation.entity";
 
 export class ProductValue implements ProductEntity {
     cmp_uuid: string;
@@ -13,6 +14,7 @@ export class ProductValue implements ProductEntity {
     cat_uuid: string;
     pro_createdat: Date;
     pro_updatedat: Date;
+    productVariations: ProductVariationEntity[];
     
     constructor({
             cmp_uuid,
@@ -24,7 +26,8 @@ export class ProductValue implements ProductEntity {
             itm_uuid,
             cat_uuid,
             pro_createdat,
-            pro_updatedat
+            pro_updatedat,
+            productVariations
         }:{ 
             cmp_uuid: string,
             pro_uuid: string,
@@ -36,6 +39,7 @@ export class ProductValue implements ProductEntity {
             cat_uuid: string,
             pro_createdat?: Date,
             pro_updatedat?: Date
+            productVariations?: ProductVariationEntity[]
         }) {
         this.cmp_uuid = cmp_uuid;
         this.pro_uuid = uuid();
@@ -47,5 +51,6 @@ export class ProductValue implements ProductEntity {
         this.cat_uuid = cat_uuid;
         this.pro_createdat = pro_createdat ?? moment().toDate();
         this.pro_updatedat = pro_updatedat ?? moment().toDate();
+        this.productVariations = productVariations ?? [];
     }
 }

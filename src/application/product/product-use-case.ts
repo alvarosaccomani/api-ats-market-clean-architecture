@@ -1,10 +1,14 @@
+import { v4 as uuid } from "uuid";
 import { ProductRepository } from "../../domain/product/product.repository";
 import { ProductValue } from "../../domain/product/product.value";
 import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter";
+import { ProductVariationEntity } from "../../domain/product-variation/product-variation.entity";
+import { ProductVariationRepository } from "../../domain/product-variation/product-variation.repository";
 
 export class ProductUseCase {
     constructor(
-        private readonly productRepository: ProductRepository
+        private readonly productRepository: ProductRepository,
+        private readonly productVariationRepository: ProductVariationRepository
     ) {
         this.getProducts = this.getProducts.bind(this);
         this.getDetailProduct = this.getDetailProduct.bind(this);
@@ -63,12 +67,24 @@ export class ProductUseCase {
         }
     }
     
-    public async createProduct({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid } : { cmp_uuid: string, pro_uuid: string, pro_code: string, pro_name: string, pro_image: string, pro_description: string, itm_uuid: string, cat_uuid: string }) {
+    public async createProduct({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations } : { cmp_uuid: string, pro_uuid: string, pro_code: string, pro_name: string, pro_image: string, pro_description: string, itm_uuid: string, cat_uuid: string, productVariations?: ProductVariationEntity[] }) {
         try {
-            const productValue = new ProductValue({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid });
+            const productValue = new ProductValue({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations });
             const productCreated = await this.productRepository.createProduct(productValue);
             if(!productCreated) {
                 throw new Error(`No se pudo insertar el articulo.`);
+            }
+            if (productValue.productVariations.length) {
+                const productVariationsCreated = [];
+                for (const productVariation of productValue.productVariations) {
+                    productVariation.pro_uuid = productCreated.pro_uuid;
+                    productVariation.prov_uuid = uuid();
+                    const productVariationCreated = await this.productVariationRepository.createProductVariation(productVariation);
+                    if (!productVariationCreated) {
+                        throw new Error(`No se pudo insertar la variacion del articulo.`);
+                    }
+                    productVariationsCreated.push(productVariationCreated);
+                }
             }
             return {
                 cmp_uuid: productCreated.cmp_uuid,
@@ -88,11 +104,31 @@ export class ProductUseCase {
         }
     }
 
-    public async updateProduct(cmp_uuid: string, pro_uuid: string, { pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid } : { pro_code: string, pro_name: string, pro_image: string, pro_description: string, itm_uuid: string, cat_uuid: string }) {
+    public async updateProduct(cmp_uuid: string, pro_uuid: string, { pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations } : { pro_code: string, pro_name: string, pro_image: string, pro_description: string, itm_uuid: string, cat_uuid: string, productVariations?: ProductVariationEntity[] }) {
         try {
-            const productUpdated = await this.productRepository.updateProduct(cmp_uuid, pro_uuid, { pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid });
+            const productUpdated = await this.productRepository.updateProduct(cmp_uuid, pro_uuid, { pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations });
             if(!productUpdated) {
                 throw new Error(`No se pudo actualizar el articulo.`);
+            }
+            if (productVariations?.length) {
+                const productVariationsCreated = [];
+                for (const productVariation of productVariations) {
+                    if (!productVariation.prov_uuid) {
+                        productVariation.pro_uuid = productUpdated.pro_uuid;
+                        productVariation.prov_uuid = uuid();
+                        const productVariationCreated = await this.productVariationRepository.createProductVariation(productVariation);
+                        if (!productVariationCreated) {
+                            throw new Error(`No se pudo insertar la variacion del articulo.`);
+                        }
+                        productVariationsCreated.push(productVariationCreated);
+                    } else {
+                        const productVariationUpdated = await this.productVariationRepository.updateProductVariation(productVariation.cmp_uuid, productVariation.pro_uuid, productVariation.prov_uuid, productVariation);
+                        if (!productVariationUpdated) {
+                            throw new Error(`No se pudo actualizar la variacion del articulo.`);
+                        }
+                        productVariationsCreated.push(productVariationUpdated);
+                    }                    
+                }
             }
             return {
                 cmp_uuid: productUpdated.cmp_uuid,

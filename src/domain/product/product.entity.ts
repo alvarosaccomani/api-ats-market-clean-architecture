@@ -15,4 +15,4 @@ export interface ProductEntity {
 }
 
 //Update
-export type ProductUpdateData = Pick<ProductEntity, 'pro_code' | 'pro_name' | 'pro_image' | 'pro_description' | 'itm_uuid' | 'cat_uuid'>;
+export type ProductUpdateData = Pick<ProductEntity, 'pro_code' | 'pro_name' | 'pro_image' | 'pro_description' | 'itm_uuid' | 'cat_uuid' | 'productVariations'>;
