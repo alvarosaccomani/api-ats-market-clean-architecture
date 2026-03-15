@@ -1,3 +1,5 @@
+import { CompanySettingEntity } from "../company-setting/company-setting.entity"
+
 export interface CompanyEntity {
     cmp_uuid: string,
     cmp_name: string,
@@ -11,7 +13,8 @@ export interface CompanyEntity {
     cmp_isfeatured: boolean,
     cmp_status: string,  //-- active, inactive, pending
     cmp_createdat: Date,
-    cmp_updatedat: Date
+    cmp_updatedat: Date,
+    companySettings?: CompanySettingEntity[]
 }
 
 //Update

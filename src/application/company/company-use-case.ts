@@ -196,6 +196,7 @@ export class CompanyUseCase {
                 cmp_description: company.cmp_description,
                 cmp_isfeatured: company.cmp_isfeatured,
                 cmp_status: company.cmp_status,
+                companySettings: company.companySettings,
                 cmp_createdat: TimezoneConverter.toIsoStringInTimezone(company.cmp_createdat, 'America/Buenos_Aires'),
                 cmp_updatedat: TimezoneConverter.toIsoStringInTimezone(company.cmp_updatedat, 'America/Buenos_Aires')
             };

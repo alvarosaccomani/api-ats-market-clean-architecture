@@ -1,6 +1,7 @@
 import { CompanyEntity, CompanyUpdateData } from "../../../domain/company/company.entity";
 import { CompanyRepository } from "../../../domain/company/company.repository";
 import { SequelizeCompany } from "../../model/company/company.model";
+import { SequelizeCompanySetting } from "../../model/company-setting/company-setting.model";
 import { Op } from "sequelize";
 
 export class SequelizeRepository implements CompanyRepository {
@@ -127,7 +128,13 @@ export class SequelizeRepository implements CompanyRepository {
             const company = await SequelizeCompany.findOne({ 
                 where: { 
                     cmp_slug: cmp_slug ?? null
-                }
+                },
+                include: [
+                    { 
+                        as: 'companySettings', 
+                        model: SequelizeCompanySetting
+                    }
+                ]
             });
             if(!company) {
                 throw new Error(`No hay empresa con el slug: ${cmp_slug}`);

@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../../db/sequelize';
 import { CompanyEntity } from "../../../domain/company/company.entity";
+import { SequelizeCompanySetting } from '../company-setting/company-setting.model';
 
 export class SequelizeCompany extends Model<CompanyEntity, Omit<CompanyEntity, 'id'>> {
   declare cmp_uuid: string;
@@ -78,6 +79,12 @@ SequelizeCompany.init({
   createdAt: 'cmp_createdat', 
   updatedAt: 'cmp_updatedat',
   tableName: 'cmp_companies'
+});
+
+SequelizeCompany.hasMany(SequelizeCompanySetting, {
+    foreignKey: 'cmp_uuid',
+    sourceKey: 'cmp_uuid',
+    as: 'companySettings'
 });
 
 // Sincronizar (solo en desarrollo)
