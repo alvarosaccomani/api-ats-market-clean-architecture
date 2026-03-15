@@ -1,6 +1,7 @@
 export interface ItemEntity {
     cmp_uuid: string,
     itm_uuid: string,
+    gitm_uuid: string,
     itm_name: string,    
     itm_description: string,
     itm_createdat: Date,
@@ -8,4 +9,4 @@ export interface ItemEntity {
 }
 
 //Update
-export type ItemUpdateData = Pick<ItemEntity, 'itm_name' | 'itm_description'>;
+export type ItemUpdateData = Pick<ItemEntity, 'gitm_uuid' | 'itm_name' | 'itm_description'>;

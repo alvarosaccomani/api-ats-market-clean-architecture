@@ -40,8 +40,8 @@ export class SequelizeRepository implements ItemRepository {
     }
     async createItem(item: ItemEntity): Promise<ItemEntity | null> {
         try {
-            let { cmp_uuid, itm_uuid, itm_name, itm_description, itm_createdat, itm_updatedat } = item
-            const result = await SequelizeItem.create({ cmp_uuid, itm_uuid, itm_name, itm_description, itm_createdat, itm_updatedat });
+            let { cmp_uuid, itm_uuid, gitm_uuid, itm_name, itm_description, itm_createdat, itm_updatedat } = item
+            const result = await SequelizeItem.create({ cmp_uuid, itm_uuid, gitm_uuid, itm_name, itm_description, itm_createdat, itm_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado el item`);
             }

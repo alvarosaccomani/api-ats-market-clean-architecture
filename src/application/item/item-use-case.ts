@@ -24,6 +24,7 @@ export class ItemUseCase {
             return item.map(item => ({
                 cmp_uuid: item.cmp_uuid,
                 itm_uuid: item.itm_uuid,
+                gitm_uuid: item.gitm_uuid,
                 itm_name: item.itm_name,
                 itm_description: item.itm_description,
                 itm_createdat: TimezoneConverter.toIsoStringInTimezone(item.itm_createdat, 'America/Buenos_Aires'),
@@ -44,6 +45,7 @@ export class ItemUseCase {
             return {
                 cmp_uuid: item.cmp_uuid,
                 itm_uuid: item.itm_uuid,
+                gitm_uuid: item.gitm_uuid,
                 itm_name: item.itm_name,
                 itm_description: item.itm_description,
                 itm_createdat: TimezoneConverter.toIsoStringInTimezone(item.itm_createdat, 'America/Buenos_Aires'),
@@ -55,9 +57,9 @@ export class ItemUseCase {
         }
     }
     
-    public async createItem({ cmp_uuid, itm_uuid, itm_name, itm_description } : { cmp_uuid: string, itm_uuid: string, itm_name: string, itm_description: string }) {
+    public async createItem({ cmp_uuid, itm_uuid, gitm_uuid, itm_name, itm_description } : { cmp_uuid: string, itm_uuid: string, gitm_uuid: string, itm_name: string, itm_description: string }) {
         try {
-            const itemValue = new ItemValue({ cmp_uuid, itm_uuid, itm_name, itm_description });
+            const itemValue = new ItemValue({ cmp_uuid, itm_uuid, gitm_uuid, itm_name, itm_description });
             const itemCreated = await this.itemRepository.createItem(itemValue);
             if(!itemCreated) {
                 throw new Error(`No se pudo insertar el articulo.`);
@@ -65,6 +67,7 @@ export class ItemUseCase {
             return {
                 cmp_uuid: itemCreated.cmp_uuid,
                 itm_uuid: itemCreated.itm_uuid,
+                gitm_uuid: itemCreated.gitm_uuid,
                 itm_name: itemCreated.itm_name,
                 itm_description: itemCreated.itm_description,
                 itm_createdat: TimezoneConverter.toIsoStringInTimezone(itemCreated.itm_createdat, 'America/Buenos_Aires'),
@@ -76,15 +79,16 @@ export class ItemUseCase {
         }
     }
 
-    public async updateItem(cmp_uuid: string, itm_uuid: string, { itm_name, itm_description } : { itm_name: string, itm_description: string }) {
+    public async updateItem(cmp_uuid: string, itm_uuid: string, { gitm_uuid, itm_name, itm_description } : { gitm_uuid: string, itm_name: string, itm_description: string }) {
         try {
-            const itemUpdated = await this.itemRepository.updateItem(cmp_uuid, itm_uuid, { itm_name, itm_description });
+            const itemUpdated = await this.itemRepository.updateItem(cmp_uuid, itm_uuid, { gitm_uuid, itm_name, itm_description });
             if(!itemUpdated) {
                 throw new Error(`No se pudo actualizar el articulo.`);
             }
             return {
                 cmp_uuid: itemUpdated.cmp_uuid,
                 itm_uuid: itemUpdated.itm_uuid,
+                gitm_uuid: itemUpdated.gitm_uuid,
                 itm_name: itemUpdated.itm_name,
                 itm_description: itemUpdated.itm_description,
                 itm_createdat: TimezoneConverter.toIsoStringInTimezone(itemUpdated.itm_createdat, 'America/Buenos_Aires'),
@@ -105,6 +109,7 @@ export class ItemUseCase {
             return {
                 cmp_uuid: itemDeleted.cmp_uuid,
                 itm_uuid: itemDeleted.itm_uuid,
+                gitm_uuid: itemDeleted.gitm_uuid,
                 itm_name: itemDeleted.itm_name,
                 itm_description: itemDeleted.itm_description,
                 itm_createdat: TimezoneConverter.toIsoStringInTimezone(itemDeleted.itm_createdat, 'America/Buenos_Aires'),

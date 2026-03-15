@@ -5,6 +5,7 @@ import { ItemEntity } from "./item.entity";
 export class ItemValue implements ItemEntity {
     cmp_uuid: string;
     itm_uuid: string;    
+    gitm_uuid: string;
     itm_name: string;
     itm_description: string;
     itm_createdat: Date;
@@ -13,6 +14,7 @@ export class ItemValue implements ItemEntity {
     constructor({
             cmp_uuid,
             itm_uuid,
+            gitm_uuid,
             itm_name,
             itm_description,
             itm_createdat,
@@ -20,6 +22,7 @@ export class ItemValue implements ItemEntity {
         }:{ 
             cmp_uuid: string,
             itm_uuid: string,
+            gitm_uuid: string,
             itm_name: string,
             itm_description: string,
             itm_createdat?: Date,
@@ -27,6 +30,7 @@ export class ItemValue implements ItemEntity {
         }) {
         this.cmp_uuid = cmp_uuid;
         this.itm_uuid = uuid();
+        this.gitm_uuid = gitm_uuid;
         this.itm_name = itm_name;
         this.itm_description = itm_description;
         this.itm_createdat = itm_createdat ?? moment().toDate();

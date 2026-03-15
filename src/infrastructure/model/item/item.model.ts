@@ -5,6 +5,7 @@ import { ItemEntity } from "../../../domain/item/item.entity";
 export class SequelizeItem extends Model<ItemEntity, Omit<ItemEntity, 'id'>> {
   declare cmp_uuid: string;
   declare itm_uuid: string;
+  declare gitm_uuid: string;
   declare itm_name: string;
   declare itm_description: string;
   declare itm_createdat: Date;
@@ -21,6 +22,10 @@ SequelizeItem.init({
     type: DataTypes.STRING, 
     primaryKey: true/*,
     autoIncrement: true*/
+  },
+  gitm_uuid: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   itm_name: {
     type: DataTypes.STRING,
