@@ -72,6 +72,6 @@ SequelizeCompanySetting.init({
 });
 
 // Sincronizar (solo en desarrollo)
-if (process.env.NODE_ENV !== "itemion") {
+if (process.env.NODE_ENV !== "production") {
     SequelizeCompanySetting.sync();
 }

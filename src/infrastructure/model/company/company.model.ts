@@ -88,6 +88,6 @@ SequelizeCompany.hasMany(SequelizeCompanySetting, {
 });
 
 // Sincronizar (solo en desarrollo)
-if (process.env.NODE_ENV !== "itemion") {
+if (process.env.NODE_ENV !== "production") {
     SequelizeCompany.sync();
 }
