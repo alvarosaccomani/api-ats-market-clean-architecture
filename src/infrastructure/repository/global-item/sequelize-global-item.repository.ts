@@ -34,8 +34,8 @@ export class SequelizeRepository implements GlobalItemRepository {
     }
     async createGlobalItem(globalItem: GlobalItemEntity): Promise<GlobalItemEntity | null> {
         try {
-            let { gitm_uuid, gitm_name, gitm_description, gitm_createdat, gitm_updatedat } = globalItem
-            const result = await SequelizeGlobalItem.create({ gitm_uuid, gitm_name, gitm_description, gitm_createdat, gitm_updatedat });
+            let { gitm_uuid, gitm_name, gitm_description, gitm_image, gitm_createdat, gitm_updatedat } = globalItem
+            const result = await SequelizeGlobalItem.create({ gitm_uuid, gitm_name, gitm_description, gitm_image, gitm_createdat, gitm_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado el item`);
             }

@@ -25,6 +25,7 @@ export class GlobalItemUseCase {
                 gitm_uuid: globalItem.gitm_uuid,
                 gitm_name: globalItem.gitm_name,
                 gitm_description: globalItem.gitm_description,
+                gitm_image: globalItem.gitm_image,
                 gitm_createdat: TimezoneConverter.toIsoStringInTimezone(globalItem.gitm_createdat, 'America/Buenos_Aires'),
                 gitm_updatedat: TimezoneConverter.toIsoStringInTimezone(globalItem.gitm_updatedat, 'America/Buenos_Aires')
             }));
@@ -44,6 +45,7 @@ export class GlobalItemUseCase {
                 gitm_uuid: globalItem.gitm_uuid,
                 gitm_name: globalItem.gitm_name,
                 gitm_description: globalItem.gitm_description,
+                gitm_image: globalItem.gitm_image,
                 gitm_createdat: TimezoneConverter.toIsoStringInTimezone(globalItem.gitm_createdat, 'America/Buenos_Aires'),
                 gitm_updatedat: TimezoneConverter.toIsoStringInTimezone(globalItem.gitm_updatedat, 'America/Buenos_Aires')
             };
@@ -53,9 +55,9 @@ export class GlobalItemUseCase {
         }
     }
     
-    public async createGlobalItem({ gitm_uuid, gitm_name, gitm_description } : { gitm_uuid: string, gitm_name: string, gitm_description: string }) {
+    public async createGlobalItem({ gitm_uuid, gitm_name, gitm_description, gitm_image } : { gitm_uuid: string, gitm_name: string, gitm_description: string, gitm_image: string }) {
         try {
-            const globalItemValue = new GlobalItemValue({ gitm_uuid, gitm_name, gitm_description });
+            const globalItemValue = new GlobalItemValue({ gitm_uuid, gitm_name, gitm_description, gitm_image });
             const globalItemCreated = await this.globalItemRepository.createGlobalItem(globalItemValue);
             if(!globalItemCreated) {
                 throw new Error(`No se pudo insertar el articulo global.`);
@@ -73,9 +75,9 @@ export class GlobalItemUseCase {
         }
     }
 
-    public async updateGlobalItem(gitm_uuid: string, { gitm_name, gitm_description } : { gitm_name: string, gitm_description: string }) {
+    public async updateGlobalItem(gitm_uuid: string, { gitm_name, gitm_description, gitm_image } : { gitm_name: string, gitm_description: string, gitm_image: string }) {
         try {
-            const globalItemUpdated = await this.globalItemRepository.updateGlobalItem(gitm_uuid, { gitm_name, gitm_description });
+            const globalItemUpdated = await this.globalItemRepository.updateGlobalItem(gitm_uuid, { gitm_name, gitm_description, gitm_image });
             if(!globalItemUpdated) {
                 throw new Error(`No se pudo actualizar el articulo global.`);
             }

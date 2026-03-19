@@ -6,6 +6,7 @@ export class SequelizeGlobalItem extends Model<GlobalItemEntity, Omit<GlobalItem
   declare gitm_uuid: string;
   declare gitm_name: string;
   declare gitm_description: string;
+  declare gitm_image: string;
   declare gitm_createdat: Date;
   declare gitm_updatedat: Date;
 }
@@ -21,6 +22,10 @@ SequelizeGlobalItem.init({
     allowNull: true
   },
   gitm_description: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  gitm_image: {
     type: DataTypes.STRING,
     allowNull: true
   },
