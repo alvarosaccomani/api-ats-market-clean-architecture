@@ -7,6 +7,7 @@ export class GlobalCategoryValue implements GlobalCategoryEntity {
     gcat_uuid: string;
     gcat_name: string;
     gcat_description: string;
+    gcat_image: string;
     gcat_createdat: Date;
     gcat_updatedat: Date;
     
@@ -15,6 +16,7 @@ export class GlobalCategoryValue implements GlobalCategoryEntity {
             gcat_uuid,
             gcat_name,
             gcat_description,
+            gcat_image,
             gcat_createdat,
             gcat_updatedat
         }:{ 
@@ -22,6 +24,7 @@ export class GlobalCategoryValue implements GlobalCategoryEntity {
             gcat_uuid: string,
             gcat_name: string,
             gcat_description: string,
+            gcat_image: string,
             gcat_createdat?: Date,
             gcat_updatedat?: Date
         }) {
@@ -29,6 +32,7 @@ export class GlobalCategoryValue implements GlobalCategoryEntity {
         this.gcat_uuid = uuid();
         this.gcat_name = gcat_name;
         this.gcat_description = gcat_description;
+        this.gcat_image = gcat_image;
         this.gcat_createdat = gcat_createdat ?? moment().toDate();
         this.gcat_updatedat = gcat_updatedat ?? moment().toDate();
     }

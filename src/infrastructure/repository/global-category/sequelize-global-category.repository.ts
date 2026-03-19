@@ -35,8 +35,8 @@ export class SequelizeRepository implements GlobalCategoryRepository {
     }
     async createGlobalCategory(globalCategory: GlobalCategoryEntity): Promise<GlobalCategoryEntity | null> {
         try {
-            let { gitm_uuid, gcat_uuid, gcat_name, gcat_description, gcat_createdat, gcat_updatedat } = globalCategory
-            const result = await SequelizeGlobalCategory.create({ gitm_uuid, gcat_uuid, gcat_name, gcat_description, gcat_createdat, gcat_updatedat });
+            let { gitm_uuid, gcat_uuid, gcat_name, gcat_description, gcat_image, gcat_createdat, gcat_updatedat } = globalCategory
+            const result = await SequelizeGlobalCategory.create({ gitm_uuid, gcat_uuid, gcat_name, gcat_description, gcat_image, gcat_createdat, gcat_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado la categoria`);
             }

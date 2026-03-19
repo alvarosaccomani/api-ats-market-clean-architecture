@@ -7,6 +7,7 @@ export class SequelizeGlobalCategory extends Model<GlobalCategoryEntity, Omit<Gl
   declare gcat_uuid: string;
   declare gcat_name: string;
   declare gcat_description: string;
+  declare gcat_image: string;
   declare gcat_createdat: Date;
   declare gcat_updatedat: Date;
 }
@@ -27,6 +28,10 @@ SequelizeGlobalCategory.init({
     allowNull: true
   },
   gcat_description: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  gcat_image: {
     type: DataTypes.STRING,
     allowNull: true
   },
