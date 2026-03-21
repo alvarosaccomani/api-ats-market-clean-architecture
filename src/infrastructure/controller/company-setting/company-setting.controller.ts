@@ -14,17 +14,18 @@ export class CompanySettingController {
 
     public async getAllCtrl(req: Request, res: Response) {
         try {
+            const cmp_uuid = req.params.cmp_uuid;
             const page = (req.params.page ? parseInt(req.params.page) : null);
             const perPage = (req.params.perPage ? parseInt(req.params.perPage) : null);
             if (page && perPage) {
-                const getCompaniesSettings = await this.companySettingUseCase.getCompaniesSettings()
+                const getCompaniesSettings = await this.companySettingUseCase.getCompaniesSettings(cmp_uuid)
                 return res.status(200).send({
                     success: true,
                     message: 'Empresas configuraciones retornadas.',
                     ...paginator(getCompaniesSettings, page, perPage)
                 });
             } else {
-                const getCompaniesSettings = await this.companySettingUseCase.getCompaniesSettings()
+                const getCompaniesSettings = await this.companySettingUseCase.getCompaniesSettings(cmp_uuid)
                 return res.status(200).send({
                     success: true,
                     message: 'Empresas configuraciones retornadas.',

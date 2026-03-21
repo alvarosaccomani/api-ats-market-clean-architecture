@@ -4,9 +4,13 @@ import { SequelizeCompanySetting } from "../../model/company-setting/company-set
 import { Op } from "sequelize";
 
 export class SequelizeRepository implements CompanySettingRepository {
-    async getCompaniesSettings(): Promise<CompanySettingEntity[] | null> {
+    async getCompaniesSettings(cmp_uuid: string): Promise<CompanySettingEntity[] | null> {
         try {
-            const companiesSettings = await SequelizeCompanySetting.findAll();
+            const companiesSettings = await SequelizeCompanySetting.findAll({
+                where: {
+                    cmp_uuid: cmp_uuid ?? null
+                }
+            });
             if(!companiesSettings) {
                 throw new Error(`No hay empresas configuraciones`)
             };

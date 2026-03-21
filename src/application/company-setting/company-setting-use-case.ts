@@ -14,9 +14,9 @@ export class CompanySettingUseCase {
         this.findCompanySettingByKey = this.findCompanySettingByKey.bind(this);
     }
 
-    public async getCompaniesSettings() {
+    public async getCompaniesSettings(cmp_uuid: string) {
         try {
-            const companiesSetting = await this.companySettingRepository.getCompaniesSettings();
+            const companiesSetting = await this.companySettingRepository.getCompaniesSettings(cmp_uuid);
             if(!companiesSetting) {
                 throw new Error('No hay configuraciones de empresa.');
             }
