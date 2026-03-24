@@ -23,7 +23,7 @@ function configureCompanySettingRoutes(app: Express, socketAdapter: SocketAdapte
     
     const companySettingCtrl = new CompanySettingController(companySettingUseCase, socketAdapter);
     
-    app.get(`/${process.env.BASE_URL_API}/companies-settings/:filter?/:page?/:perPage?`, companySettingCtrl.getAllCtrl);
+    app.get(`/${process.env.BASE_URL_API}/companies-settings/:cmp_uuid/:filter?/:page?/:perPage?`, companySettingCtrl.getAllCtrl);
     app.get(`/${process.env.BASE_URL_API}/company-setting/:cmp_uuid/:cmps_uuid`, companySettingCtrl.getCtrl);
     app.post(`/${process.env.BASE_URL_API}/company-setting`, companySettingCtrl.insertCtrl);
     app.put(`/${process.env.BASE_URL_API}/company-setting/:cmp_uuid/:cmps_uuid`, companySettingCtrl.updateCtrl);
