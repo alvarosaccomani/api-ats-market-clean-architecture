@@ -24,7 +24,7 @@ class Server {
 
     private config() {
         this.app.use(bodyParser.urlencoded({ extended:true }));
-        this.app.use(bodyParser.json({ limit: '1mb' })); // 100kb default
+        this.app.use(bodyParser.json({ limit: '20mb' })); // 100kb default
         this.app.use(cors());
     }
 
