@@ -14,25 +14,17 @@ export class CustomerController {
 
     public async getAllCtrl(req: Request, res: Response) {
         try {
-            const cmp_uuid = req.params.cmp_uuid;
             const page = (req.params.page ? parseInt(req.params.page) : null);
             const perPage = (req.params.perPage ? parseInt(req.params.perPage) : null);
-            if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'No se pudo recuperar los items.',
-                    error: 'Debe proporcionar un Id de company.'
-                });
-            }
             if (page && perPage) {
-                const customers = await this.customerUseCase.getCustomers(cmp_uuid)
+                const customers = await this.customerUseCase.getCustomers()
                 return res.status(200).send({
                     success: true,
                     message: 'Clientes retornados.',
                     ...paginator(customers, page, perPage)
                 });
             } else {
-                const customers = await this.customerUseCase.getCustomers(cmp_uuid)
+                const customers = await this.customerUseCase.getCustomers()
                 return res.status(200).send({
                     success: true,
                     message: 'Clientes retornados.',
@@ -51,13 +43,13 @@ export class CustomerController {
 
     public async getCtrl(req: Request, res: Response) {
         try {
-            const cmp_uuid = req.params.cmp_uuid;
+            const usr_uuid = req.params.usr_uuid;
             const cus_uuid = req.params.cus_uuid;
-            if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
+            if(!usr_uuid || usr_uuid.toLowerCase() === 'null' || usr_uuid.toLowerCase() === 'undefined') {
                 return res.status(400).json({
                     success: false,
                     message: 'No se pudo recuperar el cliente.',
-                    error: 'Debe proporcionar un Id de company.'
+                    error: 'Debe proporcionar un Id de usuario.'
                 });
             }
             if(!cus_uuid || cus_uuid.toLowerCase() === 'null' || cus_uuid.toLowerCase() === 'undefined') {
@@ -67,7 +59,7 @@ export class CustomerController {
                     error: 'Debe proporcionar un Id de cliente.'
                 });
             }
-            const customer = await this.customerUseCase.getDetailCustomer(`${cmp_uuid}`,`${cus_uuid}`)
+            const customer = await this.customerUseCase.getDetailCustomer(`${usr_uuid}`,`${cus_uuid}`)
             return res.status(200).send({
                 success: true,
                 message: 'Cliente retornado.',
@@ -85,16 +77,8 @@ export class CustomerController {
 
     public async insertCtrl({ body }: Request, res: Response) {
         try {
-            const cmp_uuid = body.cmp_uuid;
             const cus_uuid = body.cus_uuid;
             const cus_fullname = body.cus_fullname;
-            if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'No se pudo recuperar el cliente.',
-                    error: 'Debe proporcionar un Id de company.'
-                });
-            }
             if(!cus_uuid || cus_uuid.toLowerCase() === 'null' || cus_uuid.toLowerCase() === 'undefined') {
                 return res.status(400).json({
                     success: false,
@@ -109,7 +93,7 @@ export class CustomerController {
                     error: 'Debe proporcionar un Nombre para el cliente.'
                 })
             };
-            const customerByName = await this.customerUseCase.findCustomerByName(cmp_uuid, cus_uuid, cus_fullname);
+            const customerByName = await this.customerUseCase.findCustomerByName(cus_uuid, cus_fullname);
             if(customerByName) {
                 return res.status(400).json({
                     success: false,
@@ -135,10 +119,10 @@ export class CustomerController {
 
     public async updateCtrl(req: Request, res: Response) {
         try {
-            const cmp_uuid = req.params.cmp_uuid;
+            const usr_uuid = req.params.usr_uuid;
             const cus_uuid = req.params.cus_uuid;
             const update = req.body;
-            const customer = await this.customerUseCase.updateCustomer(cmp_uuid, cus_uuid, update)
+            const customer = await this.customerUseCase.updateCustomer(usr_uuid, cus_uuid, update)
             return res.status(200).json({
                 success: true,
                 message: 'Cliente actualizado.',
@@ -156,13 +140,13 @@ export class CustomerController {
 
     public async deleteCtrl(req: Request, res: Response) {
         try {
-            const cmp_uuid = req.params.cmp_uuid;
+            const usr_uuid = req.params.usr_uuid;
             const cus_uuid = req.params.cus_uuid;
-            if(!cmp_uuid) {
+            if(!usr_uuid) {
                 return res.status(400).json({
                     success: false,
                     message: 'No se pudo eliminar el cliente.',
-                    error: 'Debe proporcionar un Id de company.'
+                    error: 'Debe proporcionar un Id de usuario.'
                 });
             };
             if(!cus_uuid) {
@@ -172,7 +156,7 @@ export class CustomerController {
                     error: 'Debe proporcionar un Id de cliente.'
                 });
             };
-            const customer = await this.customerUseCase.deleteCustomer(cmp_uuid, cus_uuid)
+            const customer = await this.customerUseCase.deleteCustomer(usr_uuid, cus_uuid)
             return res.status(200).json({
                 success: true,
                 message: 'Cliente eliminado.',

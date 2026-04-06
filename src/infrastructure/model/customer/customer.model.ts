@@ -16,7 +16,7 @@ export class SequelizeCustomer extends Model<CustomerEntity, Omit<CustomerEntity
 }
 
 SequelizeCustomer.init({
-  cmp_uuid: {
+  usr_uuid: {
     type: DataTypes.STRING, 
     primaryKey: true/*,
     autoIncrement: true*/
@@ -40,14 +40,6 @@ SequelizeCustomer.init({
   },
   cus_dateofbirth: {
     type: DataTypes.DATE,
-    allowNull: true
-  },
-  pmt_uuid: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  usr_uuid: {
-    type: DataTypes.STRING,
     allowNull: true
   },
   cus_createdat: {
