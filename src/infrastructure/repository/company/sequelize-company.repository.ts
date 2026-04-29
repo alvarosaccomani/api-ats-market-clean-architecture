@@ -35,8 +35,8 @@ export class SequelizeRepository implements CompanyRepository {
     }
     async createCompany(company: CompanyEntity): Promise<CompanyEntity | null> {
         try {
-            let { cmp_uuid, cmp_name, cmp_address, cmp_phone, cmp_email, cmp_slug, cmp_description, cmp_logo, cmp_banner, cmp_isfeatured, cmp_status, cmp_createdat, cmp_updatedat } = company
-            const result = await SequelizeCompany.create({ cmp_uuid, cmp_name, cmp_address, cmp_phone, cmp_email, cmp_slug, cmp_description, cmp_logo, cmp_banner, cmp_isfeatured, cmp_status, cmp_createdat, cmp_updatedat });
+            let { cmp_uuid, cmp_name, cmp_address, cmp_lat, cmp_lng, cmp_phone, cmp_email, cmp_slug, cmp_logo, cmp_banner, cmp_description, cmp_currency, cmp_whatsapp, cmp_instagram, cmp_facebook, cmp_allowbackorders, cmp_primarycolor, cmp_isfeatured, cmp_status, cmp_createdat, cmp_updatedat } = company
+            const result = await SequelizeCompany.create({ cmp_uuid, cmp_name, cmp_address, cmp_lat, cmp_lng, cmp_phone, cmp_email, cmp_slug, cmp_logo, cmp_banner, cmp_description, cmp_currency, cmp_whatsapp, cmp_instagram, cmp_facebook, cmp_allowbackorders, cmp_primarycolor, cmp_isfeatured, cmp_status, cmp_createdat, cmp_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado la empresa`);
             }
@@ -53,12 +53,20 @@ export class SequelizeRepository implements CompanyRepository {
                 { 
                     cmp_name: company.cmp_name,
                     cmp_address: company.cmp_address,
+                    cmp_lat: company.cmp_lat,
+                    cmp_lng: company.cmp_lng,
                     cmp_phone: company.cmp_phone,
                     cmp_email: company.cmp_email,
                     cmp_slug: company.cmp_slug,
-                    cmp_description: company.cmp_description,
                     cmp_logo: company.cmp_logo,
                     cmp_banner: company.cmp_banner,
+                    cmp_description: company.cmp_description,
+                    cmp_currency: company.cmp_currency,
+                    cmp_whatsapp: company.cmp_whatsapp,
+                    cmp_instagram: company.cmp_instagram,
+                    cmp_facebook: company.cmp_facebook,
+                    cmp_allowbackorders: company.cmp_allowbackorders,
+                    cmp_primarycolor: company.cmp_primarycolor,
                     cmp_isfeatured: company.cmp_isfeatured,
                     cmp_status: company.cmp_status
                 },

@@ -7,12 +7,20 @@ export class SequelizeCompany extends Model<CompanyEntity, Omit<CompanyEntity, '
   declare cmp_uuid: string;
   declare cmp_name: string;
   declare cmp_address: string;
+  declare cmp_lat: number;
+  declare cmp_lng: number;
   declare cmp_phone: string;
   declare cmp_email: string;
   declare cmp_slug: string;
   declare cmp_logo: string;
   declare cmp_banner: string;
   declare cmp_description: string;
+  declare cmp_currency: string;
+  declare cmp_whatsapp: string;
+  declare cmp_instagram: string;
+  declare cmp_facebook: string;
+  declare cmp_allowbackorders: boolean;
+  declare cmp_primarycolor: string;
   declare cmp_isfeatured: boolean;
   declare cmp_status: string;  //-- active, inactive, pending
   declare cmp_createdat: Date;
@@ -31,6 +39,14 @@ SequelizeCompany.init({
   },
   cmp_address: {
     type: DataTypes.STRING,
+    allowNull: true
+  },
+  cmp_lat: {
+    type: DataTypes.FLOAT,
+    allowNull: true
+  },
+  cmp_lng: {
+    type: DataTypes.FLOAT,
     allowNull: true
   },
   cmp_phone: {
@@ -54,6 +70,30 @@ SequelizeCompany.init({
     allowNull: true
   },
   cmp_description: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  cmp_currency: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  cmp_whatsapp: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  cmp_instagram: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  cmp_facebook: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  cmp_allowbackorders: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true
+  },
+  cmp_primarycolor: {
     type: DataTypes.STRING,
     allowNull: true
   },

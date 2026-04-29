@@ -71,16 +71,8 @@ export class CompanyController {
 
     public async insertCtrl({ body }: Request, res: Response) {
         try {
-            const cmp_uuid = body.cmp_uuid;
             const cmp_slug = body.cmp_slug;
             const cmp_name = body.cmp_name;
-            if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'No se pudo recuperar la empresa.',
-                    error: 'Debe proporcionar un Id de company.'
-                });
-            }
             if(!cmp_name) {
                 return res.status(400).json({
                     success: false,
@@ -88,7 +80,7 @@ export class CompanyController {
                     error: 'Debe proporcionar un Nombre para la empresa.'
                 })
             };
-            const companyByName = await this.companyUseCase.findCompanyByName(cmp_uuid, cmp_name);
+            const companyByName = await this.companyUseCase.findCompanyByName(cmp_name);
             if(companyByName) {
                 return res.status(400).json({
                     success: false,
@@ -96,7 +88,7 @@ export class CompanyController {
                     error: `El nombre ${cmp_name} de empresa ya existe.`
                 });
             }
-            const companyBySlug = await this.companyUseCase.findCompanyBySlug(cmp_uuid, cmp_slug);
+            const companyBySlug = await this.companyUseCase.findCompanyBySlug(cmp_slug);
             if(companyBySlug) {
                 return res.status(400).json({
                     success: false,
