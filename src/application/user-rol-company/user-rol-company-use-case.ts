@@ -25,6 +25,7 @@ export class UserRolCompanyUseCase {
                 usr_uuid: userRolCompany.usr_uuid,
                 usr: userRolCompany.usr,
                 rol_uuid: userRolCompany.rol_uuid,
+                rol: userRolCompany.rol,
                 usrrolcmp_createdat: TimezoneConverter.toIsoStringInTimezone(userRolCompany.usrrolcmp_createdat, 'America/Argentina/Buenos_Aires'),
                 usrrolcmp_updatedat: TimezoneConverter.toIsoStringInTimezone(userRolCompany.usrrolcmp_updatedat, 'America/Argentina/Buenos_Aires')
             }));

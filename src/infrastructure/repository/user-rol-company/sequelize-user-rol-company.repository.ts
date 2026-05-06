@@ -17,7 +17,8 @@ export class SequelizeRepository implements UserRolCompanyRepository {
                     cmp_uuid: cmp_uuid ?? null
                 },
                 include: [
-                    { as: 'usr', model: SequelizeUser }
+                    { as: 'usr', model: SequelizeUser },
+                    { as: 'rol', model: SequelizeRol }
                 ]
             });
             if(!userRolesCompany) {
