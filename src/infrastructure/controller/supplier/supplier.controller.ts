@@ -95,13 +95,6 @@ export class SupplierController {
                     error: 'Debe proporcionar un Id de company.'
                 });
             }
-            if(!sup_uuid || sup_uuid.toLowerCase() === 'null' || sup_uuid.toLowerCase() === 'undefined') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'No se pudo recuperar el proveedor.',
-                    error: 'Debe proporcionar un Id de proveedor.'
-                });
-            }
             if(!sup_fullname) {
                 return res.status(400).json({
                     success: false,
