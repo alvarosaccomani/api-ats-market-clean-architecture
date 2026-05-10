@@ -96,13 +96,6 @@ export class ProductController {
                     error: 'Debe proporcionar un Id de company.'
                 });
             }
-            if(!pro_uuid || pro_uuid.toLowerCase() === 'null' || pro_uuid.toLowerCase() === 'undefined') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'No se pudo recuperar el articulo.',
-                    error: 'Debe proporcionar un Id de articulo.'
-                });
-            }
             if(!pro_name) {
                 return res.status(400).json({
                     success: false,
