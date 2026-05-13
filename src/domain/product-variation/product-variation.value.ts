@@ -1,6 +1,7 @@
 import { v4 as uuid } from "uuid";
 import moment from 'moment';
 import { ProductVariationEntity } from "./product-variation.entity";
+import { CostPerSupplierValue } from "../cost-per-supplier/cost-per-supplier.value";
 
 export class ProductVariationValue implements ProductVariationEntity {
     cmp_uuid: string;
@@ -17,6 +18,7 @@ export class ProductVariationValue implements ProductVariationEntity {
     prov_suggestedminimumsellingprice: number;
     prov_createdat: Date;
     prov_updatedat: Date;
+    costsPerSupplier?: CostPerSupplierValue[];
     
     constructor({
             cmp_uuid,

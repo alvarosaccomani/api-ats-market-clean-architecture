@@ -1,10 +1,14 @@
+import { v4 as uuid } from "uuid";
 import { ProductVariationRepository } from "../../domain/product-variation/product-variation.repository";
 import { ProductVariationValue } from "../../domain/product-variation/product-variation.value";
 import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter";
+import { CostPerSupplierEntity } from "../../domain/cost-per-supplier/cost-per-supplier.entity";
+import { CostPerSupplierRepository } from "../../domain/cost-per-supplier/cost-per-supplier.repository";
 
 export class ProductVariationUseCase {
     constructor(
-        private readonly productVariationRepository: ProductVariationRepository
+        private readonly productVariationRepository: ProductVariationRepository,
+        private readonly costPerSupplierRepository: CostPerSupplierRepository
     ) {
         this.getProductVariations = this.getProductVariations.bind(this);
         this.getDetailProductVariation = this.getDetailProductVariation.bind(this);
@@ -77,6 +81,18 @@ export class ProductVariationUseCase {
             if(!productVariationCreated) {
                 throw new Error(`No se pudo insertar la variacion de articulo.`);
             }
+            if (productVariationValue.costsPerSupplier && productVariationValue.costsPerSupplier.length) {
+                const costsPerSupplierCreated = [];
+                for (const costPerSupplier of productVariationValue.costsPerSupplier) {
+                    costPerSupplier.prov_uuid = productVariationCreated.prov_uuid;
+                    costPerSupplier.cps_uuid = uuid();
+                    const costPerSupplierCreated = await this.costPerSupplierRepository.createCostPerSupplier(costPerSupplier);
+                    if (!costPerSupplierCreated) {
+                        throw new Error(`No se pudo insertar el costo por proveedor.`);
+                    }
+                    costsPerSupplierCreated.push(costPerSupplierCreated);
+                }
+            }
             return {
                 cmp_uuid: productVariationCreated.cmp_uuid,
                 pro_uuid: productVariationCreated.pro_uuid,
@@ -99,11 +115,31 @@ export class ProductVariationUseCase {
         }
     }
 
-    public async updateProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string, { prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice } : { prov_code: string, prov_sku: string, prov_name: string, prov_description: string, prov_image: string, prov_color: string, prov_size: string, prov_stock: number, prov_suggestedminimumsellingprice: number }) {
+    public async updateProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string, { prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier } : { prov_code: string, prov_sku: string, prov_name: string, prov_description: string, prov_image: string, prov_color: string, prov_size: string, prov_stock: number, prov_suggestedminimumsellingprice: number, costsPerSupplier?: CostPerSupplierEntity[] }) {
         try {
             const productVariationUpdated = await this.productVariationRepository.updateProductVariation(cmp_uuid, pro_uuid, prov_uuid, { prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice });
             if(!productVariationUpdated) {
                 throw new Error(`No se pudo actualizar la variacion de articulo.`);
+            }
+            if (costsPerSupplier && costsPerSupplier?.length) {
+                const costsPerSupplierCreated = [];
+                for (const costPerSupplier of costsPerSupplier) {
+                    if (!costPerSupplier.cps_uuid) {
+                        costPerSupplier.prov_uuid = productVariationUpdated.prov_uuid;
+                        costPerSupplier.cps_uuid = uuid();
+                        const costPerSupplierCreated = await this.costPerSupplierRepository.createCostPerSupplier(costPerSupplier);
+                        if (!costPerSupplierCreated) {
+                            throw new Error(`No se pudo insertar el costo por proveedor.`);
+                        }
+                        costsPerSupplierCreated.push(costPerSupplierCreated);
+                    } else {
+                        const costsPerSupplierUpdated = await this.costPerSupplierRepository.updateCostPerSupplier(costPerSupplier.cmp_uuid, costPerSupplier.pro_uuid, costPerSupplier.prov_uuid, costPerSupplier.sup_uuid, costPerSupplier.cps_uuid, costPerSupplier);
+                        if (!costsPerSupplierUpdated) {
+                            throw new Error(`No se pudo actualizar el costo por proveedor.`);
+                        }
+                        costsPerSupplierCreated.push(costsPerSupplierUpdated);
+                    }
+                }
             }
             return {
                 cmp_uuid: productVariationUpdated.cmp_uuid,

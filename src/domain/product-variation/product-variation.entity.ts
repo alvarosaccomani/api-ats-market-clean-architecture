@@ -1,3 +1,5 @@
+import { CostPerSupplierEntity } from "../cost-per-supplier/cost-per-supplier.entity";
+
 export interface ProductVariationEntity {
     cmp_uuid: string;
     pro_uuid: string;
@@ -13,6 +15,7 @@ export interface ProductVariationEntity {
     prov_suggestedminimumsellingprice: number;
     prov_createdat: Date;
     prov_updatedat: Date;
+    costsPerSupplier?: CostPerSupplierEntity[];
 }
 
 //Update

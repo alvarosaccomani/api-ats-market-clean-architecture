@@ -1,5 +1,6 @@
 import { Express } from "express";
 import { SequelizeRepository } from "../../repository/product-variation/sequelize-product-variation.repository";
+import { SequelizeRepository as SequelizeCostPerSupplierRepository } from "../../repository/cost-per-supplier/sequelize-cost-per-supplier.repository";
 import { ProductVariationUseCase } from "../../../application/product-variation/product-variation-use-case";
 import { ProductVariationController } from "../../controller/product-variation/product-variation.controller";
 import SocketAdapter from "../../services/socketAdapter";
@@ -10,12 +11,13 @@ function configureProductVariationRoutes(app: Express, socketAdapter: SocketAdap
     */
     
     const sequelizeProductVariationRepository = new SequelizeRepository();
+    const sequelizeCostPerSupplierRepository = new SequelizeCostPerSupplierRepository();
     
     /*
     *   Iniciar casos de uso
     */
     
-    const productVariationUseCase = new ProductVariationUseCase(sequelizeProductVariationRepository);
+    const productVariationUseCase = new ProductVariationUseCase(sequelizeProductVariationRepository, sequelizeCostPerSupplierRepository);
     
     /*
     *   Iniciar controller
