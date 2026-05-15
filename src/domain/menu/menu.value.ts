@@ -10,6 +10,7 @@ export class MenuValue implements MenuEntity {
     mnu_icon: string;
     mnu_route: string;
     mnu_order: number;
+    mnu_showifcompanyactive: boolean;
     mnu_itemactive: boolean;
     mnu_active: boolean;
     mnu_createdat: Date;
@@ -23,6 +24,7 @@ export class MenuValue implements MenuEntity {
             mnu_icon,
             mnu_route,
             mnu_order,
+            mnu_showifcompanyactive,
             mnu_itemactive,
             mnu_active,
             mnu_createdat,
@@ -35,6 +37,7 @@ export class MenuValue implements MenuEntity {
             mnu_icon: string,
             mnu_route: string,
             mnu_order: number,
+            mnu_showifcompanyactive: boolean,
             mnu_itemactive: boolean,
             mnu_active: boolean,
             mnu_createdat?: Date,
@@ -47,6 +50,7 @@ export class MenuValue implements MenuEntity {
         this.mnu_icon = mnu_icon;
         this.mnu_route = mnu_route;
         this.mnu_order = mnu_order;
+        this.mnu_showifcompanyactive = mnu_showifcompanyactive;
         this.mnu_itemactive = mnu_itemactive;
         this.mnu_active = mnu_active;
         this.mnu_createdat = mnu_createdat ?? moment().toDate();

@@ -10,6 +10,7 @@ export class SequelizeMenu extends Model<MenuEntity, Omit<MenuEntity, 'id'>> {
   declare mnu_icon: string;
   declare mnu_route: string;
   declare mnu_order: number;
+  declare mnu_showifcompanyactive: boolean;
   declare mnu_itemactive: boolean;
   declare mnu_active: boolean;
   declare mnu_createdat: Date;
@@ -41,6 +42,10 @@ SequelizeMenu.init({
     mnu_order: { 
         type: DataTypes.INTEGER, 
         defaultValue: 0 
+    },
+    mnu_showifcompanyactive: { 
+        type: DataTypes.BOOLEAN, 
+        defaultValue: false 
     },
     mnu_itemactive: { 
         type: DataTypes.BOOLEAN, 
