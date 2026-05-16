@@ -1,0 +1,98 @@
+import { OrderEntity, OrderUpdateData } from "../../../domain/order/order.entity";
+import { OrderRepository } from "../../../domain/order/order.repository";
+import { SequelizeOrder } from "../../model/order/order.model";
+
+export class SequelizeRepository implements OrderRepository {
+    async getOrders(cmp_uuid: string): Promise<OrderEntity[] | null> {
+        try {
+            let config = {
+                where: {
+                    cmp_uuid: cmp_uuid ?? null
+                }
+            }
+            const orders = await SequelizeOrder.findAll(config);
+            if(!orders) {
+                throw new Error(`No hay ordenes`)
+            };
+            return orders;
+        } catch (error: any) {
+            console.error('Error en getCategories:', error.message);
+            throw error;
+        }
+    }
+    async findOrderById(cmp_uuid: string, ord_uuid: string): Promise<OrderEntity | null> {
+        try {
+            const order = await SequelizeOrder.findOne({ 
+                where: { 
+                    cmp_uuid: cmp_uuid ?? null,
+                    ord_uuid: ord_uuid ?? null
+                }
+            });
+            if(!order) {
+                throw new Error(`No hay orden con el Id: ${cmp_uuid}, ${ord_uuid}`);
+            };
+            return order.dataValues;
+        } catch (error: any) {
+            console.error('Error en findOrderById:', error.message);
+            throw error;
+        }
+    }
+    async createOrder(order: OrderEntity): Promise<OrderEntity | null> {
+        try {
+            let { cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat } = order
+            const result = await SequelizeOrder.create({ cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat });
+            if(!result) {
+                throw new Error(`No se ha agregado la orden`);
+            }
+            let newOrder = result.dataValues as SequelizeOrder
+            return newOrder;
+        } catch (error: any) {
+            console.error('Error en createOrder:', error.message);
+            throw error;
+        }
+    }
+    async updateOrder(cmp_uuid: string, ord_uuid: string, order: OrderUpdateData): Promise<OrderEntity | null> {
+        try {
+            const [updatedCount, [updatedOrder]] = await SequelizeOrder.update(
+                { 
+                    usr_uuid: order.usr_uuid,
+                    cus_uuid: order.cus_uuid,
+                    adr_uuid: order.adr_uuid,
+                    ord_ordernumber: order.ord_ordernumber,
+                    ord_status: order.ord_status,
+                    ord_date: order.ord_date,
+                    ord_subtotal: order.ord_subtotal,
+                    ord_shippingcost: order.ord_shippingcost,
+                    ord_tax: order.ord_tax,
+                    ord_total: order.ord_total,
+                    ord_customernotes: order.ord_customernotes,
+                    ord_trackingnumber: order.ord_trackingnumber,
+                },
+                { 
+                    where: { cmp_uuid, ord_uuid },
+                    returning: true,
+                }
+            );
+            if (updatedCount === 0) {
+                throw new Error(`No se ha actualizado la orden`);
+            };
+            return updatedOrder.get({ plain: true }) as OrderEntity;
+        } catch (error: any) {
+            console.error('Error en updateOrder:', error.message);
+            throw error;
+        }
+    }
+    async deleteOrder(cmp_uuid: string, ord_uuid: string): Promise<OrderEntity | null> {
+        try {
+            const order = await this.findOrderById(cmp_uuid, ord_uuid);
+            const result = await SequelizeOrder.destroy({ where: { cmp_uuid, ord_uuid } });
+            if(!result) {
+                throw new Error(`No se ha eliminado la orden`);
+            };
+            return order;
+        } catch (error: any) {
+            console.error('Error en deleteOrder:', error.message);
+            throw error;
+        }
+    }    
+}
