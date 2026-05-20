@@ -10,6 +10,7 @@ export class OrderController {
         this.insertCtrl = this.insertCtrl.bind(this);
         this.updateCtrl = this.updateCtrl.bind(this);
         this.deleteCtrl = this.deleteCtrl.bind(this);
+        this.getOrdersByCustomer = this.getOrdersByCustomer.bind(this);
     }
 
     public async getAllCtrl(req: Request, res: Response) {
@@ -159,6 +160,43 @@ export class OrderController {
             return res.status(400).json({
                 success: false,
                 message: 'No se pudo eliminar la orden.',
+                error: error.message, // Mensaje claro del error
+            });
+        }
+    }
+
+    public async getOrdersByCustomer(req: Request, res: Response) {
+        try {
+            const cus_uuid = req.params.cus_uuid;
+            const page = (req.params.page ? parseInt(req.params.page) : null);
+            const perPage = (req.params.perPage ? parseInt(req.params.perPage) : null);
+            if(!cus_uuid || cus_uuid.toLowerCase() === 'null' || cus_uuid.toLowerCase() === 'undefined') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'No se pudo recuperar las ordenes.',
+                    error: 'Debe proporcionar un Id de cliente.'
+                });
+            }
+            if (page && perPage) {
+                const orders = await this.orderUseCase.getOrdersByCustomer(cus_uuid)
+                return res.status(200).send({
+                    success: true,
+                    message: 'Ordenes retornadas.',
+                    ...paginator(orders, page, perPage)
+                });
+            } else {
+                const orders = await this.orderUseCase.getOrdersByCustomer(cus_uuid)
+                return res.status(200).send({
+                    success: true,
+                    message: 'Ordenes retornadas.',
+                    data: orders
+                });
+            }
+        } catch (error: any) {
+            console.error('Error en getOrdersByCustomer (controller):', error.message);
+            return res.status(400).json({
+                success: false,
+                message: 'No se pudo recuperar las ordenes.',
                 error: error.message, // Mensaje claro del error
             });
         }

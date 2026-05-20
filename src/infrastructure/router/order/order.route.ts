@@ -28,6 +28,7 @@ function configureOrderRoutes(app: Express, socketAdapter: SocketAdapter) {
     app.post(`/${process.env.BASE_URL_API}/order`, orderCtrl.insertCtrl);
     app.put(`/${process.env.BASE_URL_API}/order/:cmp_uuid/:ord_uuid`, orderCtrl.updateCtrl);
     app.delete(`/${process.env.BASE_URL_API}/order/:cmp_uuid/:ord_uuid`, orderCtrl.deleteCtrl);
+    app.get(`/${process.env.BASE_URL_API}/orders-by-customer/:cus_uuid/:filter?/:page?/:perPage?`, orderCtrl.getOrdersByCustomer);
 }
 
 export default configureOrderRoutes;

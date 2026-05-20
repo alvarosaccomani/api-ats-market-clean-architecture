@@ -12,6 +12,7 @@ export class OrderUseCase {
         this.createOrder = this.createOrder.bind(this);
         this.updateOrder = this.updateOrder.bind(this);
         this.deleteOrder = this.deleteOrder.bind(this);
+        this.getOrdersByCustomer = this.getOrdersByCustomer.bind(this);
     }
 
     public async getOrders(cmp_uuid: string) {
@@ -161,6 +162,36 @@ export class OrderUseCase {
             };
         } catch (error: any) {
             console.error('Error en deleteOrder (use case):', error.message);
+            throw error; // Propagar el error hacia el controlador
+        }
+    }
+
+    public async getOrdersByCustomer(cus_uuid: string) {
+        try {
+            const order = await this.orderRepository.getOrdersByCustomer(cus_uuid);
+            if(!order) {
+                throw new Error('No hay ordenes.');
+            }
+            return order.map(order => ({
+                cmp_uuid: order.cmp_uuid,
+                ord_uuid: order.ord_uuid,
+                usr_uuid: order.usr_uuid,
+                cus_uuid: order.cus_uuid,
+                adr_uuid: order.adr_uuid,
+                ord_ordernumber: order.ord_ordernumber,
+                ord_status: order.ord_status,
+                ord_date: order.ord_date,
+                ord_subtotal: order.ord_subtotal,
+                ord_shippingcost: order.ord_shippingcost,
+                ord_tax: order.ord_tax,
+                ord_total: order.ord_total,
+                ord_customernotes: order.ord_customernotes,
+                ord_trackingnumber: order.ord_trackingnumber,
+                ord_createdat: TimezoneConverter.toIsoStringInTimezone(order.ord_createdat, 'America/Buenos_Aires'),
+                ord_updatedat: TimezoneConverter.toIsoStringInTimezone(order.ord_updatedat, 'America/Buenos_Aires')
+            }));
+        } catch (error: any) {
+            console.error('Error en getOrders (use case):', error.message);
             throw error; // Propagar el error hacia el controlador
         }
     }

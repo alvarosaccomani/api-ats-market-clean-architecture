@@ -16,7 +16,7 @@ export class SequelizeRepository implements OrderRepository {
             };
             return orders;
         } catch (error: any) {
-            console.error('Error en getCategories:', error.message);
+            console.error('Error en getOrders:', error.message);
             throw error;
         }
     }
@@ -94,5 +94,22 @@ export class SequelizeRepository implements OrderRepository {
             console.error('Error en deleteOrder:', error.message);
             throw error;
         }
-    }    
+    }
+    async getOrdersByCustomer(cus_uuid: string): Promise<OrderEntity[] | null> {
+        try {
+            let config = {
+                where: {
+                    cus_uuid: cus_uuid ?? null
+                }
+            }
+            const orders = await SequelizeOrder.findAll(config);
+            if(!orders) {
+                throw new Error(`No hay ordenes`)
+            };
+            return orders;
+        } catch (error: any) {
+            console.error('Error en getOrdersByCustomer:', error.message);
+            throw error;
+        }
+    }
 }

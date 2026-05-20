@@ -6,4 +6,5 @@ export interface OrderRepository {
     createOrder(order: OrderEntity): Promise<OrderEntity | null>;
     updateOrder(cmp_uuid: string, ord_uuid: string, order: OrderUpdateData): Promise<OrderEntity | null>;
     deleteOrder(cmp_uuid: string, ord_uuid: string): Promise<OrderEntity | null>;
+    getOrdersByCustomer(cus_uuid: string): Promise<OrderEntity[] | null>;
 }
