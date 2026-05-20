@@ -32,7 +32,7 @@ export class CustomerValue implements CustomerEntity {
             cus_updatedat?: Date
         }) {
         this.usr_uuid = usr_uuid;
-        this.cus_uuid = cus_uuid;
+        this.cus_uuid = uuid();
         this.cus_fullname = cus_fullname;
         this.cus_email = cus_email;
         this.cus_phone = cus_phone;

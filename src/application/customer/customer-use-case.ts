@@ -13,6 +13,7 @@ export class CustomerUseCase {
         this.updateCustomer = this.updateCustomer.bind(this);
         this.deleteCustomer = this.deleteCustomer.bind(this);
         this.findCustomerByName = this.findCustomerByName.bind(this);
+        this.getCustomerByUser = this.getCustomerByUser.bind(this);
     }
 
     public async getCustomers() {
@@ -135,6 +136,28 @@ export class CustomerUseCase {
             return customer
         } catch (error: any) {
             console.error('Error en findCustomerByName (use case):', error.message);
+            throw error; // Propagar el error hacia el controlador
+        }
+    }
+
+    public async getCustomerByUser(usr_uuid: string) {
+        try {
+            const customer = await this.customerRepository.getCustomerByUser(usr_uuid);
+            if(!customer) {
+                throw new Error(`No hay cliente con el Id: ${usr_uuid}`);
+            }
+            return {
+                usr_uuid: customer.usr_uuid,
+                cus_uuid: customer.cus_uuid,
+                cus_fullname: customer.cus_fullname,
+                cus_email: customer.cus_email,
+                cus_phone: customer.cus_phone,
+                cus_dateofbirth: TimezoneConverter.toIsoStringInTimezone(customer.cus_dateofbirth, 'America/Buenos_Aires'),
+                cus_createdat: TimezoneConverter.toIsoStringInTimezone(customer.cus_createdat, 'America/Buenos_Aires'),
+                cus_updatedat: TimezoneConverter.toIsoStringInTimezone(customer.cus_updatedat, 'America/Buenos_Aires')
+            };
+        } catch (error: any) {
+            console.error('Error en getCustomerByUser (use case):', error.message);
             throw error; // Propagar el error hacia el controlador
         }
     }

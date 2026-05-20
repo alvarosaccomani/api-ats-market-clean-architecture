@@ -101,5 +101,18 @@ export class SequelizeRepository implements CustomerRepository {
             throw error;
         }
     }
-    
+    async getCustomerByUser(usr_uuid: string): Promise<CustomerEntity | null> {
+        try {
+            const customer = await SequelizeCustomer.findOne({ 
+                where: { usr_uuid: usr_uuid ?? null }
+            });
+            if(!customer) {
+                throw new Error(`No hay cliente con el Id: ${usr_uuid}`);
+            };
+            return customer.dataValues;
+        } catch (error: any) {
+            console.error('Error en getCustomerByUser:', error.message);
+            throw error;
+        }
+    }
 }

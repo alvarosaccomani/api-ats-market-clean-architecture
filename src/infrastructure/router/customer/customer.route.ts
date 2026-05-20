@@ -28,6 +28,7 @@ function configureCustomerRoutes(app: Express, socketAdapter: SocketAdapter) {
     app.post(`/${process.env.BASE_URL_API}/customer`, customerCtrl.insertCtrl);
     app.put(`/${process.env.BASE_URL_API}/customer/:usr_uuid/:cus_uuid`, customerCtrl.updateCtrl);
     app.delete(`/${process.env.BASE_URL_API}/customer/:usr_uuid/:cus_uuid`, customerCtrl.deleteCtrl);
+    app.get(`/${process.env.BASE_URL_API}/customer-by-user/:usr_uuid`, customerCtrl.getCustomerByUserCtrl);
 }
 
 export default configureCustomerRoutes;

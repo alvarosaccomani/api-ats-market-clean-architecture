@@ -10,6 +10,7 @@ export class CustomerController {
         this.insertCtrl = this.insertCtrl.bind(this);
         this.updateCtrl = this.updateCtrl.bind(this);
         this.deleteCtrl = this.deleteCtrl.bind(this);
+        this.getCustomerByUserCtrl = this.getCustomerByUserCtrl.bind(this);
     }
 
     public async getAllCtrl(req: Request, res: Response) {
@@ -167,6 +168,32 @@ export class CustomerController {
             return res.status(400).json({
                 success: false,
                 message: 'No se pudo eliminar el cliente.',
+                error: error.message, // Mensaje claro del error
+            });
+        }
+    }
+
+    public async getCustomerByUserCtrl(req: Request, res: Response) {
+        try {
+            const usr_uuid = req.params.usr_uuid;
+            if(!usr_uuid) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'No se pudo obtener el cliente.',
+                    error: 'Debe proporcionar un Id de usuario.'
+                });
+            };
+            const customer = await this.customerUseCase.getCustomerByUser(usr_uuid)
+            return res.status(200).json({
+                success: true,
+                message: 'Cliente obtenido.',
+                data: customer
+            });
+        } catch (error: any) {
+            console.error('Error en getCustomerByUserCtrl (controller):', error.message);
+            return res.status(400).json({
+                success: false,
+                message: 'No se pudo obtener el cliente.',
                 error: error.message, // Mensaje claro del error
             });
         }
