@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 import moment from 'moment';
 import { ProductVariationEntity } from "./product-variation.entity";
-import { CostPerSupplierValue } from "../cost-per-supplier/cost-per-supplier.value";
+import { CostPerSupplierEntity } from "../cost-per-supplier/cost-per-supplier.entity";
 
 export class ProductVariationValue implements ProductVariationEntity {
     cmp_uuid: string;
@@ -18,7 +18,7 @@ export class ProductVariationValue implements ProductVariationEntity {
     prov_suggestedminimumsellingprice: number;
     prov_createdat: Date;
     prov_updatedat: Date;
-    costsPerSupplier?: CostPerSupplierValue[];
+    costsPerSupplier?: CostPerSupplierEntity[];
     
     constructor({
             cmp_uuid,
@@ -34,7 +34,8 @@ export class ProductVariationValue implements ProductVariationEntity {
             prov_stock,
             prov_suggestedminimumsellingprice,
             prov_createdat,
-            prov_updatedat
+            prov_updatedat,
+            costsPerSupplier
         }:{ 
             cmp_uuid: string,
             pro_uuid: string,
@@ -49,7 +50,8 @@ export class ProductVariationValue implements ProductVariationEntity {
             prov_stock: number,
             prov_suggestedminimumsellingprice: number,
             prov_createdat?: Date,
-            prov_updatedat?: Date
+            prov_updatedat?: Date,
+            costsPerSupplier?: CostPerSupplierEntity[]
         }) {
         this.cmp_uuid = cmp_uuid;
         this.pro_uuid = pro_uuid;
@@ -65,5 +67,6 @@ export class ProductVariationValue implements ProductVariationEntity {
         this.prov_suggestedminimumsellingprice = prov_suggestedminimumsellingprice;
         this.prov_createdat = prov_createdat ?? moment().toDate();
         this.prov_updatedat = prov_updatedat ?? moment().toDate();
+        this.costsPerSupplier = costsPerSupplier ?? [];
     }
 }
