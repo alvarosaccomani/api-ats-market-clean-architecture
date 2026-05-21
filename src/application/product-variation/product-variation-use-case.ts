@@ -74,9 +74,9 @@ export class ProductVariationUseCase {
         }
     }
     
-    public async createProductVariation({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice } : { cmp_uuid: string, pro_uuid: string, prov_uuid: string, prov_code: string, prov_sku: string, prov_name: string, prov_description: string, prov_image: string, prov_color: string, prov_size: string, prov_stock: number; prov_suggestedminimumsellingprice: number }) {
+    public async createProductVariation({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier } : { cmp_uuid: string, pro_uuid: string, prov_uuid: string, prov_code: string, prov_sku: string, prov_name: string, prov_description: string, prov_image: string, prov_color: string, prov_size: string, prov_stock: number; prov_suggestedminimumsellingprice: number, costsPerSupplier?: CostPerSupplierEntity[] }) {
         try {
-            const productVariationValue = new ProductVariationValue({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice });
+            const productVariationValue = new ProductVariationValue({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier });
             const productVariationCreated = await this.productVariationRepository.createProductVariation(productVariationValue);
             if(!productVariationCreated) {
                 throw new Error(`No se pudo insertar la variacion de articulo.`);
