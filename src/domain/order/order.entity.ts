@@ -1,3 +1,5 @@
+import { OrderDetailEntity } from "../order-detail/order-detail.entity";
+
 export interface OrderEntity {
     cmp_uuid: string;
     ord_uuid: string;
@@ -15,6 +17,7 @@ export interface OrderEntity {
     ord_trackingnumber: string;
     ord_createdat: Date;
     ord_updatedat: Date;
+    orderDetails?: OrderDetailEntity[];
 }
 
 //Update

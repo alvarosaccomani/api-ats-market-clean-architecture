@@ -1,6 +1,7 @@
 import { v4 as uuid } from "uuid";
 import moment from 'moment';
 import { OrderEntity } from "./order.entity";
+import { OrderDetailEntity } from "../order-detail/order-detail.entity";
 
 export class OrderValue implements OrderEntity {
     cmp_uuid: string;
@@ -19,6 +20,7 @@ export class OrderValue implements OrderEntity {
     ord_trackingnumber: string;
     ord_createdat: Date;
     ord_updatedat: Date;
+    orderDetails?: OrderDetailEntity[];
     
     constructor({
             cmp_uuid,
@@ -36,7 +38,8 @@ export class OrderValue implements OrderEntity {
             ord_customernotes,
             ord_trackingnumber,
             ord_createdat,
-            ord_updatedat
+            ord_updatedat,
+            orderDetails
         }:{ 
             cmp_uuid: string,
             ord_uuid: string,
@@ -53,7 +56,8 @@ export class OrderValue implements OrderEntity {
             ord_customernotes: string,
             ord_trackingnumber: string,
             ord_createdat?: Date,
-            ord_updatedat?: Date
+            ord_updatedat?: Date,
+            orderDetails?: OrderDetailEntity[]
         }) {
         this.cmp_uuid = cmp_uuid;
         this.ord_uuid = uuid();
@@ -71,5 +75,6 @@ export class OrderValue implements OrderEntity {
         this.ord_trackingnumber = ord_trackingnumber;
         this.ord_createdat = ord_createdat ?? moment().toDate();
         this.ord_updatedat = ord_updatedat ?? moment().toDate();
+        this.orderDetails = orderDetails ?? [];
     }
 }

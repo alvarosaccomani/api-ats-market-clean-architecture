@@ -1,11 +1,14 @@
 import { v4 as uuid } from "uuid";
 import { OrderRepository } from "../../domain/order/order.repository";
 import { OrderValue } from "../../domain/order/order.value";
+import { OrderDetailEntity } from "../../domain/order-detail/order-detail.entity";
+import { OrderDetailRepository } from "../../domain/order-detail/order-detail.repository";
 import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter";
 
 export class OrderUseCase {
     constructor(
-        private readonly orderRepository: OrderRepository
+        private readonly orderRepository: OrderRepository,
+        private readonly orderDetailRepository: OrderDetailRepository
     ) {
         this.getOrders = this.getOrders.bind(this);
         this.getOrderDetail = this.getOrderDetail.bind(this);
@@ -75,12 +78,24 @@ export class OrderUseCase {
         }
     }
     
-    public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_status: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string }) {
+    public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_status: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails: OrderDetailEntity[] }) {
         try {
-            const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber });
+            const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails });
             const orderCreated = await this.orderRepository.createOrder(orderValue);
             if(!orderCreated) {
                 throw new Error(`No se pudo insertar la orden.`);
+            }
+            if (orderValue.orderDetails && orderValue.orderDetails.length) {
+                const orderDetailsCreated = [];
+                for (const orderDetail of orderValue.orderDetails) {
+                    orderDetail.ord_uuid = orderCreated.ord_uuid;
+                    orderDetail.ordd_uuid = uuid();
+                    const orderDetailCreated = await this.orderDetailRepository.createDetailOrder(orderDetail);
+                    if (!orderDetailCreated) {
+                        throw new Error(`No se pudo insertar el detalle de la orden.`);                        
+                    }
+                    orderDetailsCreated.push(orderDetailCreated);
+                }
             }
             return {
                 cmp_uuid: orderCreated.cmp_uuid,
@@ -106,11 +121,31 @@ export class OrderUseCase {
         }
     }
 
-    public async updateOrder(cmp_uuid: string, ord_uuid: string, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber } : { usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_status: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string }) {
+    public async updateOrder(cmp_uuid: string, ord_uuid: string, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_status: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails?: OrderDetailEntity[] }) {
         try {
             const orderUpdated = await this.orderRepository.updateOrder(cmp_uuid, ord_uuid, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber });
             if(!orderUpdated) {
                 throw new Error(`No se pudo actualizar la orden.`);
+            }
+            if (orderDetails && orderDetails?.length) {
+                const orderDetailsCreated = [];
+                for (const orderDetail of orderDetails) {
+                    if (!orderDetail.ordd_uuid) {
+                        orderDetail.ord_uuid = orderUpdated.ord_uuid;
+                        orderDetail.ordd_uuid = uuid();
+                        const orderDetailCreated = await this.orderDetailRepository.createDetailOrder(orderDetail);
+                        if (!orderDetailCreated) {
+                            throw new Error(`No se pudo insertar el detalle de la orden.`);
+                        }
+                        orderDetailsCreated.push(orderDetailCreated);
+                    } else {
+                        const orderDetailUpdated = await this.orderDetailRepository.updateDetailOrder(orderDetail.cmp_uuid, orderDetail.ord_uuid, orderDetail.ordd_uuid, orderDetail);
+                        if (!orderDetailUpdated) {
+                            throw new Error(`No se pudo actualizar el detalle de la orden.`);
+                        }
+                        orderDetailsCreated.push(orderDetailUpdated);
+                    }
+                }
             }
             return {
                 cmp_uuid: orderUpdated.cmp_uuid,
