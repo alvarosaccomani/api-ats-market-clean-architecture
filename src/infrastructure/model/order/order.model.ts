@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../../db/sequelize';
 import { OrderEntity } from "../../../domain/order/order.entity";
+import { SequelizeOrderDetail } from '../order-detail/order-detail.model';
 
 export class SequelizeOrder extends Model<OrderEntity, Omit<OrderEntity, 'id'>> {
   declare cmp_uuid: string;
@@ -9,7 +10,7 @@ export class SequelizeOrder extends Model<OrderEntity, Omit<OrderEntity, 'id'>> 
   declare cus_uuid: string;
   declare adr_uuid: string;
   declare ord_ordernumber: number;
-  declare ord_status: string;
+  declare ords_uuid: string;
   declare ord_date: Date;
   declare ord_subtotal: number;
   declare ord_shippingcost: number;
@@ -48,7 +49,7 @@ SequelizeOrder.init({
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  ord_status: {
+  ords_uuid: {
     type: DataTypes.STRING,
     allowNull: true
   },
@@ -94,6 +95,12 @@ SequelizeOrder.init({
   createdAt: 'ord_createdat', 
   updatedAt: 'ord_updatedat',
   tableName: 'ord_orders'
+});
+
+SequelizeOrder.hasMany(SequelizeOrderDetail, {
+    foreignKey: 'ord_uuid',
+    sourceKey: 'ord_uuid',
+    as: 'orderDetails'
 });
 
 // Sincronizar (solo en desarrollo)

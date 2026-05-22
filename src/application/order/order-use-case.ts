@@ -31,7 +31,7 @@ export class OrderUseCase {
                 cus_uuid: order.cus_uuid,
                 adr_uuid: order.adr_uuid,
                 ord_ordernumber: order.ord_ordernumber,
-                ord_status: order.ord_status,
+                ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
                 ord_subtotal: order.ord_subtotal,
                 ord_shippingcost: order.ord_shippingcost,
@@ -61,7 +61,7 @@ export class OrderUseCase {
                 cus_uuid: order.cus_uuid,
                 adr_uuid: order.adr_uuid,
                 ord_ordernumber: order.ord_ordernumber,
-                ord_status: order.ord_status,
+                ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
                 ord_subtotal: order.ord_subtotal,
                 ord_shippingcost: order.ord_shippingcost,
@@ -69,6 +69,7 @@ export class OrderUseCase {
                 ord_total: order.ord_total,
                 ord_customernotes: order.ord_customernotes,
                 ord_trackingnumber: order.ord_trackingnumber,
+                orderDetails: order.orderDetails,
                 ord_createdat: TimezoneConverter.toIsoStringInTimezone(order.ord_createdat, 'America/Buenos_Aires'),
                 ord_updatedat: TimezoneConverter.toIsoStringInTimezone(order.ord_updatedat, 'America/Buenos_Aires')
             };
@@ -78,9 +79,9 @@ export class OrderUseCase {
         }
     }
     
-    public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_status: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails: OrderDetailEntity[] }) {
+    public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ords_uuid: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails: OrderDetailEntity[] }) {
         try {
-            const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails });
+            const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails });
             const orderCreated = await this.orderRepository.createOrder(orderValue);
             if(!orderCreated) {
                 throw new Error(`No se pudo insertar la orden.`);
@@ -104,7 +105,7 @@ export class OrderUseCase {
                 cus_uuid: orderCreated.cus_uuid,
                 adr_uuid: orderCreated.adr_uuid,
                 ord_ordernumber: orderCreated.ord_ordernumber,
-                ord_status: orderCreated.ord_status,
+                ords_uuid: orderCreated.ords_uuid,
                 ord_date: orderCreated.ord_date,
                 ord_subtotal: orderCreated.ord_subtotal,
                 ord_shippingcost: orderCreated.ord_shippingcost,
@@ -121,9 +122,9 @@ export class OrderUseCase {
         }
     }
 
-    public async updateOrder(cmp_uuid: string, ord_uuid: string, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_status: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails?: OrderDetailEntity[] }) {
+    public async updateOrder(cmp_uuid: string, ord_uuid: string, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ords_uuid: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails?: OrderDetailEntity[] }) {
         try {
-            const orderUpdated = await this.orderRepository.updateOrder(cmp_uuid, ord_uuid, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_status, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber });
+            const orderUpdated = await this.orderRepository.updateOrder(cmp_uuid, ord_uuid, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber });
             if(!orderUpdated) {
                 throw new Error(`No se pudo actualizar la orden.`);
             }
@@ -154,7 +155,7 @@ export class OrderUseCase {
                 cus_uuid: orderUpdated.cus_uuid,
                 adr_uuid: orderUpdated.adr_uuid,
                 ord_ordernumber: orderUpdated.ord_ordernumber,
-                ord_status: orderUpdated.ord_status,
+                ords_uuid: orderUpdated.ords_uuid,
                 ord_date: orderUpdated.ord_date,
                 ord_subtotal: orderUpdated.ord_subtotal,
                 ord_shippingcost: orderUpdated.ord_shippingcost,
@@ -184,7 +185,7 @@ export class OrderUseCase {
                 cus_uuid: orderDeleted.cus_uuid,
                 adr_uuid: orderDeleted.adr_uuid,
                 ord_ordernumber: orderDeleted.ord_ordernumber,
-                ord_status: orderDeleted.ord_status,
+                ords_uuid: orderDeleted.ords_uuid,
                 ord_date: orderDeleted.ord_date,
                 ord_subtotal: orderDeleted.ord_subtotal,
                 ord_shippingcost: orderDeleted.ord_shippingcost,
@@ -214,7 +215,7 @@ export class OrderUseCase {
                 cus_uuid: order.cus_uuid,
                 adr_uuid: order.adr_uuid,
                 ord_ordernumber: order.ord_ordernumber,
-                ord_status: order.ord_status,
+                ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
                 ord_subtotal: order.ord_subtotal,
                 ord_shippingcost: order.ord_shippingcost,
