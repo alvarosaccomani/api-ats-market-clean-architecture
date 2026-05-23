@@ -7,4 +7,5 @@ export interface ProductVariationRepository {
     updateProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string, productVariation: ProductVariationUpdateData): Promise<ProductVariationEntity | null>;
     deleteProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string): Promise<ProductVariationEntity | null>;
     findProductVariationByName(cmp_uuid: string, pro_uuid: string, prov_name: string, excludeUuid?: string | null): Promise<ProductVariationEntity | null>;
+    checkStock(cmp_uuid: string, pro_uuid: string, prov_uuid: string): Promise<number>;
 }

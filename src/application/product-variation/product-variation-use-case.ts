@@ -16,6 +16,7 @@ export class ProductVariationUseCase {
         this.updateProductVariation = this.updateProductVariation.bind(this);
         this.deleteProductVariation = this.deleteProductVariation.bind(this);
         this.findProductVariationByName = this.findProductVariationByName.bind(this);
+        this.checkStock = this.checkStock.bind(this);
     }
 
     public async getProductVariations(cmp_uuid: string, pro_uuid: string) {
@@ -201,6 +202,16 @@ export class ProductVariationUseCase {
         } catch (error: any) {
             console.error('Error en findProductVariationByName (use case):', error.message);
             throw error; // Propagar el error hacia el controlador
+        }
+    }
+
+    public async checkStock(cmp_uuid: string, pro_uuid: string, prov_uuid: string): Promise<number> {
+        try {
+            const stock = await this.productVariationRepository.checkStock(cmp_uuid, pro_uuid, prov_uuid);
+            return stock;
+        } catch (error: any) {
+            console.error('Error en checkStock (use case):', error.message);
+            throw error;
         }
     }
 

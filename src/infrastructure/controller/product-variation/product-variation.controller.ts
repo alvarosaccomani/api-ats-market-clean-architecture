@@ -10,6 +10,7 @@ export class ProductVariationController {
         this.insertCtrl = this.insertCtrl.bind(this);
         this.updateCtrl = this.updateCtrl.bind(this);
         this.deleteCtrl = this.deleteCtrl.bind(this);
+        this.checkStockCtrl = this.checkStockCtrl.bind(this);
     }
 
     public async getAllCtrl(req: Request, res: Response) {
@@ -202,6 +203,53 @@ export class ProductVariationController {
                 success: false,
                 message: 'No se pudo eliminar el product.',
                 error: error.message, // Mensaje claro del error
+            });
+        }
+    }
+
+    public async checkStockCtrl(req: Request, res: Response) {
+        try {
+            const cmp_uuid = req.params.cmp_uuid;
+            const pro_uuid = req.params.pro_uuid;
+            const prov_uuid = req.params.prov_uuid;
+            if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'No se pudo verificar el stock.',
+                    error: 'Debe proporcionar un Id de company.'
+                });
+            }
+            if(!pro_uuid || pro_uuid.toLowerCase() === 'null' || pro_uuid.toLowerCase() === 'undefined') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'No se pudo verificar el stock.',
+                    error: 'Debe proporcionar un Id de producto.'
+                });
+            }
+            if(!prov_uuid || prov_uuid.toLowerCase() === 'null' || prov_uuid.toLowerCase() === 'undefined') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'No se pudo verificar el stock.',
+                    error: 'Debe proporcionar un Id de variacion de producto.'
+                });
+            }
+            const stock = await this.productVariationUseCase.checkStock(`${cmp_uuid}`, `${pro_uuid}`, `${prov_uuid}`);
+            return res.status(200).send({
+                success: true,
+                message: 'Stock verificado.',
+                data: {
+                    cmp_uuid,
+                    pro_uuid,
+                    prov_uuid,
+                    prov_stock: stock
+                }
+            });
+        } catch (error: any) {
+            console.error('Error en checkStockCtrl (controller):', error.message);
+            return res.status(400).json({
+                success: false,
+                message: 'No se pudo verificar el stock de la variación.',
+                error: error.message,
             });
         }
     }

@@ -124,5 +124,24 @@ export class SequelizeRepository implements ProductVariationRepository {
             throw error;
         }
     }
-    
+
+    async checkStock(cmp_uuid: string, pro_uuid: string, prov_uuid: string): Promise<number> {
+        try {
+            const product = await SequelizeProductVariation.findOne({ 
+                attributes: ['prov_stock'],
+                where: { 
+                    cmp_uuid: cmp_uuid ?? null,
+                    pro_uuid: pro_uuid ?? null,
+                    prov_uuid: prov_uuid ?? null
+                } 
+            });
+            if (!product) {
+                return 0;
+            }
+            return product.prov_stock ?? 0;
+        } catch (error: any) {
+            console.error('Error en checkStock:', error.message);
+            throw error;
+        }
+    }
 }
