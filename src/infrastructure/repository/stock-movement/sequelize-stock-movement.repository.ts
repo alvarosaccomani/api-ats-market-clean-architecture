@@ -6,7 +6,10 @@ export class SequelizeRepository implements StockMovementRepository {
     async getStockMovements(cmp_uuid: string): Promise<StockMovementEntity[] | null> {
         try {
             const movements = await SequelizeStockMovement.findAll({
-                where: { cmp_uuid: cmp_uuid ?? null }
+                where: { cmp_uuid: cmp_uuid ?? null },
+                order: [
+                    ['smo_createdat', 'DESC']
+                ] 
             });
             if (!movements) {
                 return null;
