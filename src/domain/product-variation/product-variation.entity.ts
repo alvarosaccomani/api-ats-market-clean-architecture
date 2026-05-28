@@ -1,4 +1,5 @@
 import { CostPerSupplierEntity } from "../cost-per-supplier/cost-per-supplier.entity";
+import { InventoryStockEntity } from "../inventory-stock/inventory-stock.entity";
 
 export interface ProductVariationEntity {
     cmp_uuid: string;
@@ -16,6 +17,7 @@ export interface ProductVariationEntity {
     prov_createdat: Date;
     prov_updatedat: Date;
     costsPerSupplier?: CostPerSupplierEntity[];
+    inventoryStock?: InventoryStockEntity[]
 }
 
 //Update

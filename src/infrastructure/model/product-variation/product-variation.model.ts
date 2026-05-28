@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../../db/sequelize';
 import { ProductVariationEntity } from "../../../domain/product-variation/product-variation.entity";
+import { SequelizeInventoryStock } from '../inventory-stock/inventory-stock.model';
 
 export class SequelizeProductVariation extends Model<ProductVariationEntity, Omit<ProductVariationEntity, 'id'>> {
   declare cmp_uuid: string;
@@ -85,6 +86,21 @@ SequelizeProductVariation.init({
   createdAt: 'prov_createdat',
   updatedAt: 'prov_updatedat',
   tableName: 'prov_productsvariations'
+});
+
+//Sequelize Inventory Stock Foreign Key
+SequelizeProductVariation.hasMany(SequelizeInventoryStock, {
+    foreignKey: 'cmp_uuid',
+    sourceKey: 'cmp_uuid'
+});
+SequelizeProductVariation.hasMany(SequelizeInventoryStock, {
+    foreignKey: 'pro_uuid',
+    sourceKey: 'pro_uuid',
+});
+SequelizeProductVariation.hasMany(SequelizeInventoryStock, {
+    foreignKey: 'prov_uuid',
+    sourceKey: 'prov_uuid',
+    as: 'inventoryStock'
 });
 
 // Sincronizar (solo en desarrollo)

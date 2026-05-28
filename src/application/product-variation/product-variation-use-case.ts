@@ -66,6 +66,7 @@ export class ProductVariationUseCase {
                 prov_size: productVariation.prov_size,
                 prov_stock: productVariation.prov_stock,
                 prov_suggestedminimumsellingprice: productVariation.prov_suggestedminimumsellingprice,
+                inventoryStock: productVariation.inventoryStock,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(productVariation.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(productVariation.prov_updatedat, 'America/Buenos_Aires')
             };

@@ -1,5 +1,6 @@
 import { ProductVariationEntity, ProductVariationUpdateData } from "../../../domain/product-variation/product-variation.entity";
 import { ProductVariationRepository } from "../../../domain/product-variation/product-variation.repository";
+import { SequelizeInventoryStock } from "../../model/inventory-stock/inventory-stock.model";
 import { SequelizeProductVariation } from "../../model/product-variation/product-variation.model";
 import { Op } from "sequelize";
 
@@ -39,7 +40,13 @@ export class SequelizeRepository implements ProductVariationRepository {
                     cmp_uuid: cmp_uuid ?? null,
                     pro_uuid: pro_uuid ?? null,
                     prov_uuid: prov_uuid ?? null
-                } 
+                },
+                include: [
+                    {
+                        model: SequelizeInventoryStock,
+                        as: 'inventoryStock'
+                    }
+                ]
             });
             if(!product) {
                 throw new Error(`No hay product variation con el Id: ${cmp_uuid}, ${pro_uuid}, ${prov_uuid}`);
