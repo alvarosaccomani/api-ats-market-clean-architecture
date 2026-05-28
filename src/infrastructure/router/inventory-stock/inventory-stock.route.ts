@@ -24,7 +24,7 @@ function configureInventoryStockRoutes(app: Express, socketAdapter: SocketAdapte
     app.get(`/${process.env.BASE_URL_API}/inventory-stocks/:cmp_uuid/:page?/:perPage?`, inventoryStockCtrl.getAllCtrl);
     
     // Colección filtrada por compañía, producto y variación
-    app.get(`/${process.env.BASE_URL_API}/inventory-stocks/:cmp_uuid/:pro_uuid/:prov_uuid/:page?/:perPage?`, inventoryStockCtrl.getAllCtrl);
+    app.get(`/${process.env.BASE_URL_API}/inventory-by-variation/:cmp_uuid/:pro_uuid/:prov_uuid/:page?/:perPage?`, inventoryStockCtrl.getAllCtrl);
     
     // Consulta individual por PK compuesta de 6 columnas
     app.get(`/${process.env.BASE_URL_API}/inventory-stock/:cmp_uuid/:pro_uuid/:prov_uuid/:war_uuid/:warl_uuid`, inventoryStockCtrl.getCtrl);
