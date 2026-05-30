@@ -15,6 +15,7 @@ export interface ProductVariationEntity {
     prov_stock: number;
     prov_suggestedminimumsellingprice: number;
     prov_averagerating?: number;
+    prov_reviewscount?: number;
     prov_createdat: Date;
     prov_updatedat: Date;
     costsPerSupplier?: CostPerSupplierEntity[];

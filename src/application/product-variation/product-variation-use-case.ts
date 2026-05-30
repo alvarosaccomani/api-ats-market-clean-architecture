@@ -39,6 +39,7 @@ export class ProductVariationUseCase {
                 prov_stock: productVariation.prov_stock,
                 prov_suggestedminimumsellingprice: productVariation.prov_suggestedminimumsellingprice,
                 prov_averagerating: productVariation.prov_averagerating ?? 0,
+                prov_reviewscount: productVariation.prov_reviewscount ?? 0,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(productVariation.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(productVariation.prov_updatedat, 'America/Buenos_Aires')
             }));
@@ -68,6 +69,7 @@ export class ProductVariationUseCase {
                 prov_stock: productVariation.prov_stock,
                 prov_suggestedminimumsellingprice: productVariation.prov_suggestedminimumsellingprice,
                 prov_averagerating: productVariation.prov_averagerating ?? 0,
+                prov_reviewscount: productVariation.prov_reviewscount ?? 0,
                 inventoryStock: productVariation.inventoryStock,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(productVariation.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(productVariation.prov_updatedat, 'America/Buenos_Aires')
@@ -111,6 +113,7 @@ export class ProductVariationUseCase {
                 prov_stock: productVariationCreated.prov_stock,
                 prov_suggestedminimumsellingprice: productVariationCreated.prov_suggestedminimumsellingprice,
                 prov_averagerating: productVariationCreated.prov_averagerating ?? 0,
+                prov_reviewscount: productVariationCreated.prov_reviewscount ?? 0,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(productVariationCreated.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(productVariationCreated.prov_updatedat, 'America/Buenos_Aires')
             };
@@ -160,6 +163,7 @@ export class ProductVariationUseCase {
                 prov_stock: productVariationUpdated.prov_stock,
                 prov_suggestedminimumsellingprice: productVariationUpdated.prov_suggestedminimumsellingprice,
                 prov_averagerating: productVariationUpdated.prov_averagerating ?? 0,
+                prov_reviewscount: productVariationUpdated.prov_reviewscount ?? 0,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(productVariationUpdated.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(productVariationUpdated.prov_updatedat, 'America/Buenos_Aires')
             };
@@ -189,6 +193,7 @@ export class ProductVariationUseCase {
                 prov_stock: productVariationDeleted.prov_stock,
                 prov_suggestedminimumsellingprice: productVariationDeleted.prov_suggestedminimumsellingprice,
                 prov_averagerating: productVariationDeleted.prov_averagerating ?? 0,
+                prov_reviewscount: productVariationDeleted.prov_reviewscount ?? 0,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(productVariationDeleted.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(productVariationDeleted.prov_updatedat, 'America/Buenos_Aires')
             };

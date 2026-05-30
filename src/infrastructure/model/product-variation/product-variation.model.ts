@@ -17,6 +17,7 @@ export class SequelizeProductVariation extends Model<ProductVariationEntity, Omi
   declare prov_stock: number;
   declare prov_suggestedminimumsellingprice: number;
   declare prov_averagerating?: number;
+  declare prov_reviewscount?: number;
   declare prov_createdat: Date;
   declare prov_updatedat: Date;
 }

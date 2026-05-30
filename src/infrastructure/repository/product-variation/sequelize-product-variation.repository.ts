@@ -41,6 +41,7 @@ export class SequelizeRepository implements ProductVariationRepository {
                 });
                 const totalRating = reviews.reduce((sum, review) => sum + (review.provrev_rating || 0), 0);
                 productData.prov_averagerating = reviews.length > 0 ? Number((totalRating / reviews.length).toFixed(2)) : 0;
+                productData.prov_reviewscount = reviews.length;
                 results.push(productData);
             }
             return results;
@@ -77,6 +78,7 @@ export class SequelizeRepository implements ProductVariationRepository {
             });
             const totalRating = reviews.reduce((sum, review) => sum + (review.provrev_rating || 0), 0);
             productData.prov_averagerating = reviews.length > 0 ? Number((totalRating / reviews.length).toFixed(2)) : 0;
+            productData.prov_reviewscount = reviews.length;
             return productData;
         } catch (error: any) {
             console.error('Error en findProductVariationById:', error.message);
@@ -92,6 +94,7 @@ export class SequelizeRepository implements ProductVariationRepository {
             }
             let newProduct = result.get({ plain: true }) as ProductVariationEntity;
             newProduct.prov_averagerating = 0;
+            newProduct.prov_reviewscount = 0;
             return newProduct;
         } catch (error: any) {
             console.error('Error en createProductVariation:', error.message);
@@ -130,6 +133,7 @@ export class SequelizeRepository implements ProductVariationRepository {
             });
             const totalRating = reviews.reduce((sum, review) => sum + (review.provrev_rating || 0), 0);
             productData.prov_averagerating = reviews.length > 0 ? Number((totalRating / reviews.length).toFixed(2)) : 0;
+            productData.prov_reviewscount = reviews.length;
             return productData;
         } catch (error: any) {
             console.error('Error en updateProductVariation:', error.message);
