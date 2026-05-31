@@ -4,11 +4,14 @@ import { OrderValue } from "../../domain/order/order.value";
 import { OrderDetailEntity } from "../../domain/order-detail/order-detail.entity";
 import { OrderDetailRepository } from "../../domain/order-detail/order-detail.repository";
 import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter";
+import { OrderHistoryRepository } from "../../domain/order-history/order-history.repository";
+import { OrderHistoryValue } from "../../domain/order-history/order-history.value";
 
 export class OrderUseCase {
     constructor(
         private readonly orderRepository: OrderRepository,
-        private readonly orderDetailRepository: OrderDetailRepository
+        private readonly orderDetailRepository: OrderDetailRepository,
+        private readonly orderHistoryRepository: OrderHistoryRepository
     ) {
         this.getOrders = this.getOrders.bind(this);
         this.getOrderDetail = this.getOrderDetail.bind(this);
@@ -99,6 +102,17 @@ export class OrderUseCase {
                     orderDetailsCreated.push(orderDetailCreated);
                 }
             }
+            
+            // Registrar historial de la orden
+            const historyValue = new OrderHistoryValue({
+                cmp_uuid: orderCreated.cmp_uuid,
+                ord_uuid: orderCreated.ord_uuid,
+                ords_uuid: orderCreated.ords_uuid,
+                usr_uuid: orderCreated.usr_uuid,
+                ordh_comment: "Orden registrada inicialmente."
+            });
+            await this.orderHistoryRepository.createOrderHistory(historyValue);
+
             return {
                 cmp_uuid: orderCreated.cmp_uuid,
                 ord_uuid: orderCreated.ord_uuid,
@@ -149,6 +163,17 @@ export class OrderUseCase {
                     }
                 }
             }
+            
+            // Registrar historial de la orden
+            const historyValue = new OrderHistoryValue({
+                cmp_uuid: orderUpdated.cmp_uuid,
+                ord_uuid: orderUpdated.ord_uuid,
+                ords_uuid: orderUpdated.ords_uuid,
+                usr_uuid: orderUpdated.usr_uuid,
+                ordh_comment: "Orden modificada."
+            });
+            await this.orderHistoryRepository.createOrderHistory(historyValue);
+
             return {
                 cmp_uuid: orderUpdated.cmp_uuid,
                 ord_uuid: orderUpdated.ord_uuid,
@@ -233,12 +258,23 @@ export class OrderUseCase {
         }
     }
 
-    public async changeOrderStatus(cmp_uuid: string, ord_uuid: string, ords_uuid: string) {
+    public async changeOrderStatus(cmp_uuid: string, ord_uuid: string, ords_uuid: string, usr_uuid?: string, odh_comment?: string) {
         try {
             const orderUpdated = await this.orderRepository.changeOrderStatus(cmp_uuid, ord_uuid, ords_uuid);
             if(!orderUpdated) {
                 throw new Error(`No se pudo cambiar el estado de la orden.`);
             }
+
+            // Registrar historial de la orden
+            const historyValue = new OrderHistoryValue({
+                cmp_uuid: orderUpdated.cmp_uuid,
+                ord_uuid: orderUpdated.ord_uuid,
+                ords_uuid: orderUpdated.ords_uuid,
+                usr_uuid: usr_uuid || orderUpdated.usr_uuid || "",
+                ordh_comment: odh_comment || `Estado de orden cambiado a: ${ords_uuid}`
+            });
+            await this.orderHistoryRepository.createOrderHistory(historyValue);
+
             return {
                 cmp_uuid: orderUpdated.cmp_uuid,
                 ord_uuid: orderUpdated.ord_uuid,

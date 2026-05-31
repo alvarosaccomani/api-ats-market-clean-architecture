@@ -1,6 +1,7 @@
 import { Express } from "express";
 import { SequelizeRepository as SequelizeOrderRepository } from "../../repository/order/sequelize-order.repository";
 import { SequelizeRepository as SequelizeOrderDetailRepository } from "../../repository/order-detail/sequelize-order-detail.repository";
+import { SequelizeRepository as SequelizeOrderHistoryRepository } from "../../repository/order-history/sequelize-order-history.repository";
 import { OrderUseCase } from "../../../application/order/order-use-case";
 import { OrderController } from "../../controller/order/order.controller";
 import SocketAdapter from "../../services/socketAdapter";
@@ -12,12 +13,13 @@ function configureOrderRoutes(app: Express, socketAdapter: SocketAdapter) {
     
     const sequelizeOrderRepository = new SequelizeOrderRepository();
     const sequelizeOrderDetailRepository = new SequelizeOrderDetailRepository();
+    const sequelizeOrderHistoryRepository = new SequelizeOrderHistoryRepository();
     
     /*
     *   Iniciar casos de uso
     */
     
-    const orderUseCase = new OrderUseCase(sequelizeOrderRepository, sequelizeOrderDetailRepository);
+    const orderUseCase = new OrderUseCase(sequelizeOrderRepository, sequelizeOrderDetailRepository, sequelizeOrderHistoryRepository);
     
     /*
     *   Iniciar controller
