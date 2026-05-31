@@ -11,6 +11,7 @@ export class OrderController {
         this.updateCtrl = this.updateCtrl.bind(this);
         this.deleteCtrl = this.deleteCtrl.bind(this);
         this.getOrdersByCustomer = this.getOrdersByCustomer.bind(this);
+        this.changeOrderStatusCtrl = this.changeOrderStatusCtrl.bind(this);
     }
 
     public async getAllCtrl(req: Request, res: Response) {
@@ -198,6 +199,38 @@ export class OrderController {
                 success: false,
                 message: 'No se pudo recuperar las ordenes.',
                 error: error.message, // Mensaje claro del error
+            });
+        }
+    }
+
+    public async changeOrderStatusCtrl(req: Request, res: Response) {
+        try {
+            const cmp_uuid = req.params.cmp_uuid;
+            const ord_uuid = req.params.ord_uuid;
+            const ords_uuid = req.body.ords_uuid;
+
+            if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
+                return res.status(400).json({ success: false, message: 'Falta cmp_uuid.' });
+            }
+            if(!ord_uuid || ord_uuid.toLowerCase() === 'null' || ord_uuid.toLowerCase() === 'undefined') {
+                return res.status(400).json({ success: false, message: 'Falta ord_uuid.' });
+            }
+            if(!ords_uuid) {
+                return res.status(400).json({ success: false, message: 'Falta ords_uuid en el cuerpo de la petición.' });
+            }
+
+            const order = await this.orderUseCase.changeOrderStatus(cmp_uuid, ord_uuid, ords_uuid);
+            return res.status(200).json({
+                success: true,
+                message: 'Estado de orden cambiado.',
+                data: order
+            });
+        } catch (error: any) {
+            console.error('Error en changeOrderStatusCtrl (controller):', error.message);
+            return res.status(400).json({
+                success: false,
+                message: 'No se pudo cambiar el estado de la orden.',
+                error: error.message,
             });
         }
     }

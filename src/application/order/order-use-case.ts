@@ -16,6 +16,7 @@ export class OrderUseCase {
         this.updateOrder = this.updateOrder.bind(this);
         this.deleteOrder = this.deleteOrder.bind(this);
         this.getOrdersByCustomer = this.getOrdersByCustomer.bind(this);
+        this.changeOrderStatus = this.changeOrderStatus.bind(this);
     }
 
     public async getOrders(cmp_uuid: string) {
@@ -229,6 +230,36 @@ export class OrderUseCase {
         } catch (error: any) {
             console.error('Error en getOrders (use case):', error.message);
             throw error; // Propagar el error hacia el controlador
+        }
+    }
+
+    public async changeOrderStatus(cmp_uuid: string, ord_uuid: string, ords_uuid: string) {
+        try {
+            const orderUpdated = await this.orderRepository.changeOrderStatus(cmp_uuid, ord_uuid, ords_uuid);
+            if(!orderUpdated) {
+                throw new Error(`No se pudo cambiar el estado de la orden.`);
+            }
+            return {
+                cmp_uuid: orderUpdated.cmp_uuid,
+                ord_uuid: orderUpdated.ord_uuid,
+                usr_uuid: orderUpdated.usr_uuid,
+                cus_uuid: orderUpdated.cus_uuid,
+                adr_uuid: orderUpdated.adr_uuid,
+                ord_ordernumber: orderUpdated.ord_ordernumber,
+                ords_uuid: orderUpdated.ords_uuid,
+                ord_date: orderUpdated.ord_date,
+                ord_subtotal: orderUpdated.ord_subtotal,
+                ord_shippingcost: orderUpdated.ord_shippingcost,
+                ord_tax: orderUpdated.ord_tax,
+                ord_total: orderUpdated.ord_total,
+                ord_customernotes: orderUpdated.ord_customernotes,
+                ord_trackingnumber: orderUpdated.ord_trackingnumber,
+                ord_createdat: TimezoneConverter.toIsoStringInTimezone(orderUpdated.ord_createdat, 'America/Buenos_Aires'),
+                ord_updatedat: TimezoneConverter.toIsoStringInTimezone(orderUpdated.ord_updatedat, 'America/Buenos_Aires')
+            };
+        } catch (error: any) {
+            console.error('Error en changeOrderStatus (use case):', error.message);
+            throw error;
         }
     }
 

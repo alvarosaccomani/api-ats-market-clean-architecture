@@ -119,4 +119,22 @@ export class SequelizeRepository implements OrderRepository {
             throw error;
         }
     }
+    async changeOrderStatus(cmp_uuid: string, ord_uuid: string, ords_uuid: string): Promise<OrderEntity | null> {
+        try {
+            const [updatedCount, [updatedOrder]] = await SequelizeOrder.update(
+                { ords_uuid },
+                { 
+                    where: { cmp_uuid, ord_uuid },
+                    returning: true,
+                }
+            );
+            if (updatedCount === 0) {
+                throw new Error(`No se pudo cambiar el estado de la orden`);
+            };
+            return updatedOrder.get({ plain: true }) as OrderEntity;
+        } catch (error: any) {
+            console.error('Error en changeOrderStatus (repository):', error.message);
+            throw error;
+        }
+    }
 }
