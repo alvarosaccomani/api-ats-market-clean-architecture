@@ -33,6 +33,7 @@ export class OrderUseCase {
                 ord_uuid: order.ord_uuid,
                 usr_uuid: order.usr_uuid,
                 cus_uuid: order.cus_uuid,
+                cus: order.cus,
                 adr_uuid: order.adr_uuid,
                 ord_ordernumber: order.ord_ordernumber,
                 ords_uuid: order.ords_uuid,

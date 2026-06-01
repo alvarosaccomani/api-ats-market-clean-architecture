@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../../db/sequelize';
 import { OrderEntity } from "../../../domain/order/order.entity";
+import { SequelizeCustomer } from '../customer/customer.model';
 import { SequelizeOrderDetail } from '../order-detail/order-detail.model';
 
 export class SequelizeOrder extends Model<OrderEntity, Omit<OrderEntity, 'id'>> {
@@ -95,6 +96,17 @@ SequelizeOrder.init({
   createdAt: 'ord_createdat', 
   updatedAt: 'ord_updatedat',
   tableName: 'ord_orders'
+});
+
+//Sequelize Customer model item Foreign Key
+SequelizeOrder.belongsTo(SequelizeCustomer, {
+    foreignKey: "cmp_uuid",
+    targetKey: "cmp_uuid"
+});
+SequelizeOrder.belongsTo(SequelizeCustomer, {
+    foreignKey: 'cus_uuid',
+    targetKey: "cus_uuid",
+    as: 'cus'
 });
 
 SequelizeOrder.hasMany(SequelizeOrderDetail, {

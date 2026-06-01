@@ -2,6 +2,7 @@ import { OrderEntity, OrderUpdateData } from "../../../domain/order/order.entity
 import { OrderRepository } from "../../../domain/order/order.repository";
 import { SequelizeOrderDetail } from "../../model/order-detail/order-detail.model";
 import { SequelizeOrder } from "../../model/order/order.model";
+import { SequelizeCustomer } from "../../model/customer/customer.model";
 
 export class SequelizeRepository implements OrderRepository {
     async getOrders(cmp_uuid: string): Promise<OrderEntity[] | null> {
@@ -9,7 +10,10 @@ export class SequelizeRepository implements OrderRepository {
             let config = {
                 where: {
                     cmp_uuid: cmp_uuid ?? null
-                }
+                },
+                include: [
+                    { as: 'cus', model: SequelizeCustomer }
+                ]
             }
             const orders = await SequelizeOrder.findAll(config);
             if(!orders) {

@@ -1,3 +1,4 @@
+import { CustomerEntity } from "../customer/customer.entity";
 import { OrderDetailEntity } from "../order-detail/order-detail.entity";
 
 export interface OrderEntity {
@@ -5,6 +6,7 @@ export interface OrderEntity {
     ord_uuid: string;
     usr_uuid: string;
     cus_uuid: string;
+    cus?: CustomerEntity,
     adr_uuid: string;
     ord_ordernumber: number;
     ords_uuid: string;
