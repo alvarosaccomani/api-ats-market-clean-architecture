@@ -10,6 +10,9 @@ export class OrderValue implements OrderEntity {
     cus_uuid: string;
     adr_uuid: string;
     ord_ordernumber: number;
+    ord_customername: string;
+    ord_customeremail: string;
+    ord_contactphone: string;
     ords_uuid: string;
     ord_date: Date;
     ord_subtotal: number;
@@ -29,6 +32,9 @@ export class OrderValue implements OrderEntity {
             cus_uuid,
             adr_uuid,
             ord_ordernumber,
+            ord_customername,
+            ord_customeremail,
+            ord_contactphone,
             ords_uuid,
             ord_date,
             ord_subtotal,
@@ -47,6 +53,9 @@ export class OrderValue implements OrderEntity {
             cus_uuid: string,
             adr_uuid: string,
             ord_ordernumber: number,
+            ord_customername: string,
+            ord_customeremail: string,
+            ord_contactphone: string,
             ords_uuid: string,
             ord_date: Date,
             ord_subtotal: number,
@@ -65,6 +74,9 @@ export class OrderValue implements OrderEntity {
         this.cus_uuid = cus_uuid;
         this.adr_uuid = adr_uuid;
         this.ord_ordernumber = ord_ordernumber;
+        this.ord_customername = ord_customername;
+        this.ord_customeremail = ord_customeremail;
+        this.ord_contactphone = ord_contactphone;
         this.ords_uuid = ords_uuid;
         this.ord_date = ord_date;
         this.ord_subtotal = ord_subtotal;

@@ -11,6 +11,9 @@ export class SequelizeOrder extends Model<OrderEntity, Omit<OrderEntity, 'id'>> 
   declare cus_uuid: string;
   declare adr_uuid: string;
   declare ord_ordernumber: number;
+  declare ord_customername: string;
+  declare ord_customeremail: string;
+  declare ord_contactphone: string;
   declare ords_uuid: string;
   declare ord_date: Date;
   declare ord_subtotal: number;
@@ -48,6 +51,18 @@ SequelizeOrder.init({
   },
   ord_ordernumber: {
     type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  ord_customername: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  ord_customeremail: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  ord_contactphone: {
+    type: DataTypes.STRING,
     allowNull: true
   },
   ords_uuid: {

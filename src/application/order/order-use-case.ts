@@ -36,6 +36,9 @@ export class OrderUseCase {
                 cus: order.cus,
                 adr_uuid: order.adr_uuid,
                 ord_ordernumber: order.ord_ordernumber,
+                ord_customername: order.ord_customername,
+                ord_customeremail: order.ord_customeremail,
+                ord_contactphone: order.ord_contactphone,
                 ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
                 ord_subtotal: order.ord_subtotal,
@@ -66,6 +69,9 @@ export class OrderUseCase {
                 cus_uuid: order.cus_uuid,
                 adr_uuid: order.adr_uuid,
                 ord_ordernumber: order.ord_ordernumber,
+                ord_customername: order.ord_customername,
+                ord_customeremail: order.ord_customeremail,
+                ord_contactphone: order.ord_contactphone,
                 ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
                 ord_subtotal: order.ord_subtotal,
@@ -84,9 +90,9 @@ export class OrderUseCase {
         }
     }
     
-    public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ords_uuid: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails: OrderDetailEntity[] }) {
+    public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_customername: string, ord_customeremail: string, ord_contactphone: string, ords_uuid: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails: OrderDetailEntity[] }) {
         try {
-            const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails });
+            const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails });
             const orderCreated = await this.orderRepository.createOrder(orderValue);
             if(!orderCreated) {
                 throw new Error(`No se pudo insertar la orden.`);
@@ -121,6 +127,9 @@ export class OrderUseCase {
                 cus_uuid: orderCreated.cus_uuid,
                 adr_uuid: orderCreated.adr_uuid,
                 ord_ordernumber: orderCreated.ord_ordernumber,
+                ord_customername: orderCreated.ord_customername,
+                ord_customeremail: orderCreated.ord_customeremail,
+                ord_contactphone: orderCreated.ord_contactphone,
                 ords_uuid: orderCreated.ords_uuid,
                 ord_date: orderCreated.ord_date,
                 ord_subtotal: orderCreated.ord_subtotal,
@@ -138,9 +147,9 @@ export class OrderUseCase {
         }
     }
 
-    public async updateOrder(cmp_uuid: string, ord_uuid: string, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ords_uuid: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails?: OrderDetailEntity[] }) {
+    public async updateOrder(cmp_uuid: string, ord_uuid: string, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_customername: string, ord_customeremail: string, ord_contactphone: string, ords_uuid: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails?: OrderDetailEntity[] }) {
         try {
-            const orderUpdated = await this.orderRepository.updateOrder(cmp_uuid, ord_uuid, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber });
+            const orderUpdated = await this.orderRepository.updateOrder(cmp_uuid, ord_uuid, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber });
             if(!orderUpdated) {
                 throw new Error(`No se pudo actualizar la orden.`);
             }
@@ -182,6 +191,9 @@ export class OrderUseCase {
                 cus_uuid: orderUpdated.cus_uuid,
                 adr_uuid: orderUpdated.adr_uuid,
                 ord_ordernumber: orderUpdated.ord_ordernumber,
+                ord_customername: orderUpdated.ord_customername,
+                ord_customeremail: orderUpdated.ord_customeremail,
+                ord_contactphone: orderUpdated.ord_contactphone,
                 ords_uuid: orderUpdated.ords_uuid,
                 ord_date: orderUpdated.ord_date,
                 ord_subtotal: orderUpdated.ord_subtotal,
@@ -212,6 +224,9 @@ export class OrderUseCase {
                 cus_uuid: orderDeleted.cus_uuid,
                 adr_uuid: orderDeleted.adr_uuid,
                 ord_ordernumber: orderDeleted.ord_ordernumber,
+                ord_customername: orderDeleted.ord_customername,
+                ord_customeremail: orderDeleted.ord_customeremail,
+                ord_contactphone: orderDeleted.ord_contactphone,
                 ords_uuid: orderDeleted.ords_uuid,
                 ord_date: orderDeleted.ord_date,
                 ord_subtotal: orderDeleted.ord_subtotal,
@@ -242,6 +257,9 @@ export class OrderUseCase {
                 cus_uuid: order.cus_uuid,
                 adr_uuid: order.adr_uuid,
                 ord_ordernumber: order.ord_ordernumber,
+                ord_customername: order.ord_customername,
+                ord_customeremail: order.ord_customeremail,
+                ord_contactphone: order.ord_contactphone,
                 ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
                 ord_subtotal: order.ord_subtotal,
@@ -283,6 +301,9 @@ export class OrderUseCase {
                 cus_uuid: orderUpdated.cus_uuid,
                 adr_uuid: orderUpdated.adr_uuid,
                 ord_ordernumber: orderUpdated.ord_ordernumber,
+                ord_customername: orderUpdated.ord_customername,
+                ord_customeremail: orderUpdated.ord_customeremail,
+                ord_contactphone: orderUpdated.ord_contactphone,
                 ords_uuid: orderUpdated.ords_uuid,
                 ord_date: orderUpdated.ord_date,
                 ord_subtotal: orderUpdated.ord_subtotal,

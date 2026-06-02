@@ -9,6 +9,9 @@ export interface OrderEntity {
     cus?: CustomerEntity,
     adr_uuid: string;
     ord_ordernumber: number;
+    ord_customername: string;
+    ord_customeremail: string;
+    ord_contactphone: string;
     ords_uuid: string;
     ord_date: Date;
     ord_subtotal: number;
@@ -23,4 +26,4 @@ export interface OrderEntity {
 }
 
 //Update
-export type OrderUpdateData = Pick<OrderEntity, 'usr_uuid' | 'cus_uuid' | 'adr_uuid' | 'ord_ordernumber' | 'ords_uuid' | 'ord_date' | 'ord_subtotal' | 'ord_shippingcost' | 'ord_tax' | 'ord_total' | 'ord_customernotes' | 'ord_trackingnumber'>;
+export type OrderUpdateData = Pick<OrderEntity, 'usr_uuid' | 'cus_uuid' | 'adr_uuid' | 'ord_ordernumber' | 'ord_customername' | 'ord_customeremail' | 'ord_contactphone' | 'ords_uuid' | 'ord_date' | 'ord_subtotal' | 'ord_shippingcost' | 'ord_tax' | 'ord_total' | 'ord_customernotes' | 'ord_trackingnumber'>;
