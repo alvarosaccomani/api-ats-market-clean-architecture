@@ -115,8 +115,8 @@ SequelizeOrder.init({
 
 //Sequelize Customer model item Foreign Key
 SequelizeOrder.belongsTo(SequelizeCustomer, {
-    foreignKey: "cmp_uuid",
-    targetKey: "cmp_uuid"
+    foreignKey: "usr_uuid",
+    targetKey: "usr_uuid"
 });
 SequelizeOrder.belongsTo(SequelizeCustomer, {
     foreignKey: 'cus_uuid',
