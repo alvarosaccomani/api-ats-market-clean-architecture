@@ -36,6 +36,10 @@ export class AddressUseCase {
                 adr_reference: address.adr_reference,
                 adr_country: address.adr_country,
                 adr_address: address.adr_address,
+                adr_street: address.adr_street,
+                adr_number: address.adr_number,
+                adr_floor: address.adr_floor,
+                adr_apartment: address.adr_apartment,
                 adr_city: address.adr_city,
                 adr_province: address.adr_province,
                 adr_postalcode: address.adr_postalcode,
@@ -68,6 +72,10 @@ export class AddressUseCase {
                 adr_reference: address.adr_reference,
                 adr_country: address.adr_country,
                 adr_address: address.adr_address,
+                adr_street: address.adr_street,
+                adr_number: address.adr_number,
+                adr_floor: address.adr_floor,
+                adr_apartment: address.adr_apartment,
                 adr_city: address.adr_city,
                 adr_province: address.adr_province,
                 adr_postalcode: address.adr_postalcode,
@@ -82,9 +90,9 @@ export class AddressUseCase {
         }
     }
     
-    public async createAddress({ adr_uuid, cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng } : { adr_uuid: string, cmp_uuid: string, usr_uuid: string, cus_uuid: string, sup_uuid: string, adr_alias: string, adr_recipientname: string, adr_contactphone: string, adr_reference: string, adr_country: string, adr_address: string, adr_city: string, adr_province: string, adr_postalcode: string, adr_lat: number, adr_lng: number }) {
+    public async createAddress({ adr_uuid, cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_street, adr_number, adr_floor, adr_apartment, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng } : { adr_uuid: string, cmp_uuid: string, usr_uuid: string, cus_uuid: string, sup_uuid: string, adr_alias: string, adr_recipientname: string, adr_contactphone: string, adr_reference: string, adr_country: string, adr_address: string, adr_street: string, adr_number: string, adr_floor: string, adr_apartment: string, adr_city: string, adr_province: string, adr_postalcode: string, adr_lat: number, adr_lng: number }) {
         try {
-            const addressValue = new AddressValue({ adr_uuid, cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng });
+            const addressValue = new AddressValue({ adr_uuid, cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_street, adr_number, adr_floor, adr_apartment, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng });
             const addressCreated = await this.addressRepository.createAddress(addressValue);
             if(!addressCreated) {
                 throw new Error(`No se pudo insertar la direccion.`);
@@ -101,6 +109,10 @@ export class AddressUseCase {
                 adr_reference: addressCreated.adr_reference,
                 adr_country: addressCreated.adr_country,
                 adr_address: addressCreated.adr_address,
+                adr_street: addressCreated.adr_street,
+                adr_number: addressCreated.adr_number,
+                adr_floor: addressCreated.adr_floor,
+                adr_apartment: addressCreated.adr_apartment,
                 adr_city: addressCreated.adr_city,
                 adr_province: addressCreated.adr_province,
                 adr_postalcode: addressCreated.adr_postalcode,
@@ -115,9 +127,9 @@ export class AddressUseCase {
         }
     }
 
-    public async updateAddress(adr_uuid: string, { cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, sup_uuid: string, adr_alias: string, adr_recipientname: string, adr_contactphone: string, adr_reference: string, adr_country: string, adr_address: string, adr_city: string, adr_province: string, adr_postalcode: string, adr_lat: number, adr_lng: number }) {
+    public async updateAddress(adr_uuid: string, { cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_street, adr_number, adr_floor, adr_apartment, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, sup_uuid: string, adr_alias: string, adr_recipientname: string, adr_contactphone: string, adr_reference: string, adr_country: string, adr_address: string, adr_street: string, adr_number: string, adr_floor: string, adr_apartment: string, adr_city: string, adr_province: string, adr_postalcode: string, adr_lat: number, adr_lng: number }) {
         try {
-            const addressUpdated = await this.addressRepository.updateAddress(adr_uuid, { cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng });
+            const addressUpdated = await this.addressRepository.updateAddress(adr_uuid, { cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_street, adr_number, adr_floor, adr_apartment, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng });
             if(!addressUpdated) {
                 throw new Error(`No se pudo actualizar la direccion.`);
             }
@@ -133,6 +145,10 @@ export class AddressUseCase {
                 adr_reference: addressUpdated.adr_reference,
                 adr_country: addressUpdated.adr_country,
                 adr_address: addressUpdated.adr_address,
+                adr_street: addressUpdated.adr_street,
+                adr_number: addressUpdated.adr_number,
+                adr_floor: addressUpdated.adr_floor,
+                adr_apartment: addressUpdated.adr_apartment,
                 adr_city: addressUpdated.adr_city,
                 adr_province: addressUpdated.adr_province,
                 adr_postalcode: addressUpdated.adr_postalcode,
@@ -165,6 +181,10 @@ export class AddressUseCase {
                 adr_reference: addressDeleted.adr_reference,
                 adr_country: addressDeleted.adr_country,
                 adr_address: addressDeleted.adr_address,
+                adr_street: addressDeleted.adr_street,
+                adr_number: addressDeleted.adr_number,
+                adr_floor: addressDeleted.adr_floor,
+                adr_apartment: addressDeleted.adr_apartment,
                 adr_city: addressDeleted.adr_city,
                 adr_province: addressDeleted.adr_province,
                 adr_postalcode: addressDeleted.adr_postalcode,
@@ -197,6 +217,10 @@ export class AddressUseCase {
                 adr_reference: address.adr_reference,
                 adr_country: address.adr_country,
                 adr_address: address.adr_address,
+                adr_street: address.adr_street,
+                adr_number: address.adr_number,
+                adr_floor: address.adr_floor,
+                adr_apartment: address.adr_apartment,
                 adr_city: address.adr_city,
                 adr_province: address.adr_province,
                 adr_postalcode: address.adr_postalcode,
@@ -229,6 +253,10 @@ export class AddressUseCase {
                 adr_reference: address.adr_reference,
                 adr_country: address.adr_country,
                 adr_address: address.adr_address,
+                adr_street: address.adr_street,
+                adr_number: address.adr_number,
+                adr_floor: address.adr_floor,
+                adr_apartment: address.adr_apartment,
                 adr_city: address.adr_city,
                 adr_province: address.adr_province,
                 adr_postalcode: address.adr_postalcode,
@@ -261,6 +289,10 @@ export class AddressUseCase {
                 adr_reference: address.adr_reference,
                 adr_country: address.adr_country,
                 adr_address: address.adr_address,
+                adr_street: address.adr_street,
+                adr_number: address.adr_number,
+                adr_floor: address.adr_floor,
+                adr_apartment: address.adr_apartment,
                 adr_city: address.adr_city,
                 adr_province: address.adr_province,
                 adr_postalcode: address.adr_postalcode,
@@ -293,6 +325,10 @@ export class AddressUseCase {
                 adr_reference: address.adr_reference,
                 adr_country: address.adr_country,
                 adr_address: address.adr_address,
+                adr_street: address.adr_street,
+                adr_number: address.adr_number,
+                adr_floor: address.adr_floor,
+                adr_apartment: address.adr_apartment,
                 adr_city: address.adr_city,
                 adr_province: address.adr_province,
                 adr_postalcode: address.adr_postalcode,

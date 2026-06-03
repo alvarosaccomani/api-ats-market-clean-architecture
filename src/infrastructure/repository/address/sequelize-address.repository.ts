@@ -33,12 +33,12 @@ export class SequelizeRepository implements AddressRepository {
     }
     async createAddress(address: AddressEntity): Promise<AddressEntity | null> {
         try {
-            let { adr_uuid, cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng, adr_createdat, adr_updatedat } = address
-            const result = await SequelizeAddress.create({ adr_uuid, cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng, adr_createdat, adr_updatedat });
+            let { adr_uuid, cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_street, adr_number, adr_floor, adr_apartment, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng, adr_createdat, adr_updatedat } = address
+            const result = await SequelizeAddress.create({ adr_uuid, cmp_uuid, usr_uuid, cus_uuid, sup_uuid, adr_alias, adr_recipientname, adr_contactphone, adr_reference, adr_country, adr_address, adr_street, adr_number, adr_floor, adr_apartment, adr_city, adr_province, adr_postalcode, adr_lat, adr_lng, adr_createdat, adr_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado la direccion`);
             }
-            let newAddress = result.dataValues as SequelizeAddress
+            let newAddress = result.dataValues as AddressEntity
             return newAddress;
         } catch (error: any) {
             console.error('Error en createAddress:', error.message);
@@ -59,6 +59,10 @@ export class SequelizeRepository implements AddressRepository {
                     adr_reference: address.adr_reference,
                     adr_country: address.adr_country,
                     adr_address: address.adr_address,
+                    adr_street: address.adr_street,
+                    adr_number: address.adr_number,
+                    adr_floor: address.adr_floor,
+                    adr_apartment: address.adr_apartment,
                     adr_city: address.adr_city,
                     adr_province: address.adr_province,
                     adr_postalcode: address.adr_postalcode,

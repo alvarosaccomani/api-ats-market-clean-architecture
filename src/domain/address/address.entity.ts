@@ -10,6 +10,10 @@ export interface AddressEntity {
     adr_reference: string;
     adr_country: string;
     adr_address: string;
+    adr_street: string;
+    adr_number: string;
+    adr_floor: string;
+    adr_apartment: string;
     adr_city: string;
     adr_province: string;
     adr_postalcode: string;
@@ -20,4 +24,4 @@ export interface AddressEntity {
 }
 
 //Update
-export type AddressUpdateData = Pick<AddressEntity, 'cmp_uuid' | 'usr_uuid' | 'cus_uuid' | 'sup_uuid' | 'adr_alias' | 'adr_recipientname' | 'adr_contactphone' | 'adr_reference' | 'adr_country' | 'adr_address' | 'adr_city' | 'adr_province' | 'adr_postalcode' | 'adr_lat' | 'adr_lng'>;
+export type AddressUpdateData = Pick<AddressEntity, 'cmp_uuid' | 'usr_uuid' | 'cus_uuid' | 'sup_uuid' | 'adr_alias' | 'adr_recipientname' | 'adr_contactphone' | 'adr_reference' | 'adr_country' | 'adr_address' | 'adr_street' | 'adr_number' | 'adr_floor' | 'adr_apartment' | 'adr_city' | 'adr_province' | 'adr_postalcode' | 'adr_lat' | 'adr_lng'>;
