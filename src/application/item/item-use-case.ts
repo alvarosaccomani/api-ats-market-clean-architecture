@@ -125,7 +125,7 @@ export class ItemUseCase {
         try {
             const item = await this.itemRepository.findItemByName(cmp_uuid, itm_name, excludeUuid)
             if(item) {
-                throw new Error(`Ya existe un articulo con el nombre ${itm_name}.`);
+                throw new Error(`Ya existe un rubro con el nombre ${itm_name}.`);
             }
             return item
         } catch (error: any) {

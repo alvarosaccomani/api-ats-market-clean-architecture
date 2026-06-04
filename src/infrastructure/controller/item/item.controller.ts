@@ -87,20 +87,12 @@ export class ItemController {
     public async insertCtrl({ body }: Request, res: Response) {
         try {
             const cmp_uuid = body.cmp_uuid;
-            const itm_uuid = body.itm_uuid;
             const itm_name = body.itm_name;
             if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
                 return res.status(400).json({
                     success: false,
                     message: 'No se pudo recuperar el item.',
                     error: 'Debe proporcionar un Id de company.'
-                });
-            }
-            if(!itm_uuid || itm_uuid.toLowerCase() === 'null' || itm_uuid.toLowerCase() === 'undefined') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'No se pudo recuperar el item.',
-                    error: 'Debe proporcionar un Id de item.'
                 });
             }
             if(!itm_name) {
@@ -110,7 +102,7 @@ export class ItemController {
                     error: 'Debe proporcionar un Nombre para el item.'
                 })
             };
-            const itemByName = await this.itemUseCase.findItemByName(cmp_uuid, itm_uuid, itm_name);
+            const itemByName = await this.itemUseCase.findItemByName(cmp_uuid, itm_name);
             if(itemByName) {
                 return res.status(400).json({
                     success: false,
