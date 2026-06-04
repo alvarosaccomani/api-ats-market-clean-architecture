@@ -96,7 +96,6 @@ export class CategoryController {
         try {
             const cmp_uuid = body.cmp_uuid;
             const itm_uuid = body.itm_uuid;
-            const cat_uuid = body.cat_uuid;
             const cat_name = body.cat_name;
             if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
                 return res.status(400).json({
@@ -110,13 +109,6 @@ export class CategoryController {
                     success: false,
                     message: 'No se pudo recuperar la categoria.',
                     error: 'Debe proporcionar un Id de item.'
-                });
-            }
-            if(!cat_uuid || cat_uuid.toLowerCase() === 'null' || cat_uuid.toLowerCase() === 'undefined') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'No se pudo recuperar la categoria.',
-                    error: 'Debe proporcionar un Id de categoria.'
                 });
             }
             if(!cat_name) {
