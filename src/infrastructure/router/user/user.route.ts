@@ -3,6 +3,7 @@ import { SequelizeRepository } from "../../repository/user/sequelize-user.reposi
 import { UserUseCase } from "../../../application/user/user-use-case";
 import { UserController } from "../../../infrastructure/controller/user/user.controller";
 import SocketAdapter from "../../services/socketAdapter";
+import { authMiddleware } from "../../middleware/auth.middleware";
 
 function configureUserRoutes(app: Express, socketAdapter: SocketAdapter) {
     /*
@@ -50,12 +51,14 @@ function configureUserRoutes(app: Express, socketAdapter: SocketAdapter) {
      *                   description: Lista de usuarios registrados.
      *                   items:
      *                     $ref: '#/components/schemas/UserEntity'
+     *     security:
+     *       - bearerAuth: []
      */
-    app.get(`/${process.env.BASE_URL_API}/users/:filter?/:page?/:perPage?`, userCtrl.getAllCtrl);
-    app.get(`/${process.env.BASE_URL_API}/user/:usr_uuid`, userCtrl.getCtrl);
-    app.post(`/${process.env.BASE_URL_API}/user`, userCtrl.insertCtrl);
-    app.put(`/${process.env.BASE_URL_API}/user/:usr_uuid`, userCtrl.updateCtrl);
-    app.delete(`/${process.env.BASE_URL_API}/user/:usr_uuid`, userCtrl.deleteCtrl);
+    app.get(`/${process.env.BASE_URL_API}/users/:filter?/:page?/:perPage?`, authMiddleware, userCtrl.getAllCtrl);
+    app.get(`/${process.env.BASE_URL_API}/user/:usr_uuid`, authMiddleware, userCtrl.getCtrl);
+    app.post(`/${process.env.BASE_URL_API}/user`, authMiddleware, userCtrl.insertCtrl);
+    app.put(`/${process.env.BASE_URL_API}/user/:usr_uuid`, authMiddleware, userCtrl.updateCtrl);
+    app.delete(`/${process.env.BASE_URL_API}/user/:usr_uuid`, authMiddleware, userCtrl.deleteCtrl);
     app.post(`/${process.env.BASE_URL_API}/login`, userCtrl.loginCtrl);
     app.post(`/${process.env.BASE_URL_API}/register`, userCtrl.saveCtrl);
     app.post(`/${process.env.BASE_URL_API}/confirm-account`, userCtrl.confirmCtrl);
