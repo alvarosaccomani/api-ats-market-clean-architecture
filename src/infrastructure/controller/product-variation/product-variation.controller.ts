@@ -11,6 +11,7 @@ export class ProductVariationController {
         this.updateCtrl = this.updateCtrl.bind(this);
         this.deleteCtrl = this.deleteCtrl.bind(this);
         this.checkStockCtrl = this.checkStockCtrl.bind(this);
+        this.searchCtrl = this.searchCtrl.bind(this);
     }
 
     public async getAllCtrl(req: Request, res: Response) {
@@ -249,6 +250,39 @@ export class ProductVariationController {
             return res.status(400).json({
                 success: false,
                 message: 'No se pudo verificar el stock de la variación.',
+                error: error.message,
+            });
+        }
+    }
+
+    public async searchCtrl(req: Request, res: Response) {
+        try {
+            const query = req.query.query as string || '';
+            const companyUuid = req.query.companyUuid as string || undefined;
+
+            const page = (req.query.page ? parseInt(req.query.page as string) : null);
+            const perPage = (req.query.perPage ? parseInt(req.query.perPage as string) : null);
+
+            const variations = await this.productVariationUseCase.searchProductVariations(query, companyUuid);
+
+            if (page && perPage) {
+                return res.status(200).send({
+                    success: true,
+                    message: 'Articulos de busqueda retornados.',
+                    ...paginator(variations, page, perPage)
+                });
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    message: 'Articulos de busqueda retornados.',
+                    data: variations
+                });
+            }
+        } catch (error: any) {
+            console.error('Error en searchCtrl (controller):', error.message);
+            return res.status(400).json({
+                success: false,
+                message: 'No se pudo realizar la busqueda.',
                 error: error.message,
             });
         }

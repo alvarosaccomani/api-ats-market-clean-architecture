@@ -17,6 +17,7 @@ export class ProductVariationUseCase {
         this.deleteProductVariation = this.deleteProductVariation.bind(this);
         this.findProductVariationByName = this.findProductVariationByName.bind(this);
         this.checkStock = this.checkStock.bind(this);
+        this.searchProductVariations = this.searchProductVariations.bind(this);
     }
 
     public async getProductVariations(cmp_uuid: string, pro_uuid: string) {
@@ -222,6 +223,39 @@ export class ProductVariationUseCase {
             return stock;
         } catch (error: any) {
             console.error('Error en checkStock (use case):', error.message);
+            throw error;
+        }
+    }
+
+    public async searchProductVariations(query: string, cmp_uuid?: string) {
+        try {
+            const variations = await this.productVariationRepository.searchProductVariations(query, cmp_uuid);
+            if (!variations) {
+                return [];
+            }
+            return variations.map(variation => ({
+                cmp_uuid: variation.cmp_uuid,
+                pro_uuid: variation.pro_uuid,
+                prov_uuid: variation.prov_uuid,
+                prov_code: variation.prov_code,
+                prov_sku: variation.prov_sku,
+                prov_name: variation.prov_name,
+                prov_description: variation.prov_description,
+                prov_image: variation.prov_image,
+                prov_color: variation.prov_color,
+                prov_size: variation.prov_size,
+                prov_stock: variation.prov_stock,
+                prov_suggestedminimumsellingprice: variation.prov_suggestedminimumsellingprice,
+                prov_averagerating: variation.prov_averagerating ?? 0,
+                prov_reviewscount: variation.prov_reviewscount ?? 0,
+                cat_uuid: variation.cat_uuid,
+                itm_uuid: variation.itm_uuid,
+                pro_name: variation.pro_name,
+                prov_createdat: TimezoneConverter.toIsoStringInTimezone(variation.prov_createdat, 'America/Buenos_Aires'),
+                prov_updatedat: TimezoneConverter.toIsoStringInTimezone(variation.prov_updatedat, 'America/Buenos_Aires')
+            }));
+        } catch (error: any) {
+            console.error('Error en searchProductVariations (use case):', error.message);
             throw error;
         }
     }

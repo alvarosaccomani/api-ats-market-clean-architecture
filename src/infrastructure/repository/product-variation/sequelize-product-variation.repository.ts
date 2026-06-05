@@ -3,6 +3,7 @@ import { ProductVariationRepository } from "../../../domain/product-variation/pr
 import { SequelizeInventoryStock } from "../../model/inventory-stock/inventory-stock.model";
 import { SequelizeProductVariation } from "../../model/product-variation/product-variation.model";
 import { SequelizeProductVariationReview } from "../../model/product-variation-review/product-variation-review.model";
+import { SequelizeProduct } from "../../model/product/product.model";
 import { Op } from "sequelize";
 
 export class SequelizeRepository implements ProductVariationRepository {
@@ -189,6 +190,66 @@ export class SequelizeRepository implements ProductVariationRepository {
             return product.prov_stock ?? 0;
         } catch (error: any) {
             console.error('Error en checkStock:', error.message);
+            throw error;
+        }
+    }
+
+    async searchProductVariations(searchQuery: string, cmp_uuid?: string): Promise<ProductVariationEntity[] | null> {
+        try {
+            const whereClause: any = {
+                [Op.or]: [
+                    { prov_name: { [Op.iLike]: `%${searchQuery}%` } },
+                    { prov_sku: { [Op.iLike]: `%${searchQuery}%` } },
+                    { prov_description: { [Op.iLike]: `%${searchQuery}%` } }
+                ]
+            };
+            if (cmp_uuid && cmp_uuid.toLowerCase() !== 'null' && cmp_uuid.toLowerCase() !== 'undefined' && cmp_uuid !== '') {
+                whereClause.cmp_uuid = cmp_uuid;
+            }
+
+            const variations = await SequelizeProductVariation.findAll({ where: whereClause });
+            if (!variations) {
+                return [];
+            }
+
+            // Fetch products to map product master fields
+            const proUuids = [...new Set(variations.map(v => v.pro_uuid))];
+            const products = await SequelizeProduct.findAll({
+                where: {
+                    pro_uuid: { [Op.in]: proUuids }
+                }
+            });
+            const productMap = new Map(products.map(p => [p.pro_uuid, p.get({ plain: true })]));
+
+            const results: ProductVariationEntity[] = [];
+            for (const variation of variations) {
+                const variationData = variation.get({ plain: true }) as any;
+                
+                // Merge product fields
+                const product = productMap.get(variationData.pro_uuid);
+                if (product) {
+                    variationData.cat_uuid = product.cat_uuid;
+                    variationData.itm_uuid = product.itm_uuid;
+                    variationData.pro_name = product.pro_name;
+                }
+
+                // Fetch reviews and compute rating/count
+                const reviews = await SequelizeProductVariationReview.findAll({
+                    where: {
+                        cmp_uuid: variationData.cmp_uuid,
+                        pro_uuid: variationData.pro_uuid,
+                        prov_uuid: variationData.prov_uuid
+                    }
+                });
+                const totalRating = reviews.reduce((sum, review) => sum + (review.provrev_rating || 0), 0);
+                variationData.prov_averagerating = reviews.length > 0 ? Number((totalRating / reviews.length).toFixed(2)) : 0;
+                variationData.prov_reviewscount = reviews.length;
+
+                results.push(variationData);
+            }
+            return results;
+        } catch (error: any) {
+            console.error('Error en searchProductVariations:', error.message);
             throw error;
         }
     }

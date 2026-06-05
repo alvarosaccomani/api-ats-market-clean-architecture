@@ -31,6 +31,7 @@ function configureProductVariationRoutes(app: Express, socketAdapter: SocketAdap
     app.put(`/${process.env.BASE_URL_API}/product-variation/:cmp_uuid/:pro_uuid/:prov_uuid`, productVariationCtrl.updateCtrl);
     app.delete(`/${process.env.BASE_URL_API}/product-variation/:cmp_uuid/:pro_uuid/:prov_uuid`, productVariationCtrl.deleteCtrl);
     app.get(`/${process.env.BASE_URL_API}/check-stock/:cmp_uuid/:pro_uuid/:prov_uuid`, productVariationCtrl.checkStockCtrl);
+    app.get(`/${process.env.BASE_URL_API}/products-variations-search`, productVariationCtrl.searchCtrl);
 }
 
 export default configureProductVariationRoutes;

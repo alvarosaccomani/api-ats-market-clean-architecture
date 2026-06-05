@@ -8,4 +8,5 @@ export interface ProductVariationRepository {
     deleteProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string): Promise<ProductVariationEntity | null>;
     findProductVariationByName(cmp_uuid: string, pro_uuid: string, prov_name: string, excludeUuid?: string | null): Promise<ProductVariationEntity | null>;
     checkStock(cmp_uuid: string, pro_uuid: string, prov_uuid: string): Promise<number>;
+    searchProductVariations(searchQuery: string, cmp_uuid?: string): Promise<ProductVariationEntity[] | null>;
 }

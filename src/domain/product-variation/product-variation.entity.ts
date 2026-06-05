@@ -19,7 +19,10 @@ export interface ProductVariationEntity {
     prov_createdat: Date;
     prov_updatedat: Date;
     costsPerSupplier?: CostPerSupplierEntity[];
-    inventoryStock?: InventoryStockEntity[]
+    inventoryStock?: InventoryStockEntity[];
+    cat_uuid?: string;
+    itm_uuid?: string;
+    pro_name?: string;
 }
 
 //Update
