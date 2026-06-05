@@ -4,6 +4,7 @@ import { SequelizeInventoryStock } from "../../model/inventory-stock/inventory-s
 import { SequelizeProductVariation } from "../../model/product-variation/product-variation.model";
 import { SequelizeProductVariationReview } from "../../model/product-variation-review/product-variation-review.model";
 import { SequelizeProduct } from "../../model/product/product.model";
+import { SequelizeCompany } from "../../model/company/company.model";
 import { Op } from "sequelize";
 
 export class SequelizeRepository implements ProductVariationRepository {
@@ -221,6 +222,15 @@ export class SequelizeRepository implements ProductVariationRepository {
             });
             const productMap = new Map(products.map(p => [p.pro_uuid, p.get({ plain: true })]));
 
+            // Fetch companies to map company name
+            const cmpUuids = [...new Set(variations.map(v => v.cmp_uuid))];
+            const companies = await SequelizeCompany.findAll({
+                where: {
+                    cmp_uuid: { [Op.in]: cmpUuids }
+                }
+            });
+            const companyMap = new Map(companies.map(c => [c.cmp_uuid, c.get({ plain: true })]));
+
             const results: ProductVariationEntity[] = [];
             for (const variation of variations) {
                 const variationData = variation.get({ plain: true }) as any;
@@ -231,6 +241,12 @@ export class SequelizeRepository implements ProductVariationRepository {
                     variationData.cat_uuid = product.cat_uuid;
                     variationData.itm_uuid = product.itm_uuid;
                     variationData.pro_name = product.pro_name;
+                }
+
+                // Merge company fields
+                const company = companyMap.get(variationData.cmp_uuid);
+                if (company) {
+                    variationData.cmp_name = company.cmp_name;
                 }
 
                 // Fetch reviews and compute rating/count

@@ -251,6 +251,7 @@ export class ProductVariationUseCase {
                 cat_uuid: variation.cat_uuid,
                 itm_uuid: variation.itm_uuid,
                 pro_name: variation.pro_name,
+                cmp_name: variation.cmp_name,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(variation.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(variation.prov_updatedat, 'America/Buenos_Aires')
             }));

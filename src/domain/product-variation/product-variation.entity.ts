@@ -23,6 +23,7 @@ export interface ProductVariationEntity {
     cat_uuid?: string;
     itm_uuid?: string;
     pro_name?: string;
+    cmp_name?: string;
 }
 
 //Update
