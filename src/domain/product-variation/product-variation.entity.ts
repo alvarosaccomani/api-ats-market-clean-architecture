@@ -10,6 +10,9 @@ export interface ProductVariationEntity {
     prov_name: string;
     prov_description: string;
     prov_image: string;
+    gmat_uuid?: string;
+    gmat_name?: string;
+    mat_uuid: string;
     prov_color: string;
     prov_size: string;
     prov_stock: number;
@@ -27,4 +30,4 @@ export interface ProductVariationEntity {
 }
 
 //Update
-export type ProductVariationUpdateData = Pick<ProductVariationEntity, 'prov_code' | 'prov_sku' | 'prov_name' | 'prov_description' | 'prov_image' | 'prov_color' | 'prov_size' | 'prov_stock' | 'prov_suggestedminimumsellingprice'>;
+export type ProductVariationUpdateData = Pick<ProductVariationEntity, 'prov_code' | 'prov_sku' | 'prov_name' | 'prov_description' | 'prov_image' | 'mat_uuid' | 'prov_color' | 'prov_size' | 'prov_stock' | 'prov_suggestedminimumsellingprice'>;

@@ -12,6 +12,7 @@ export class SequelizeProductVariation extends Model<ProductVariationEntity, Omi
   declare prov_name: string;
   declare prov_description: string;
   declare prov_image: string;
+  declare mat_uuid: string;
   declare prov_color: string;
   declare prov_size: string;
   declare prov_stock: number;
@@ -55,6 +56,10 @@ SequelizeProductVariation.init({
     allowNull: true
   },
   prov_image: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  mat_uuid: {
     type: DataTypes.STRING,
     allowNull: true
   },

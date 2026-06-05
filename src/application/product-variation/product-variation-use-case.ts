@@ -41,6 +41,9 @@ export class ProductVariationUseCase {
                 prov_suggestedminimumsellingprice: productVariation.prov_suggestedminimumsellingprice,
                 prov_averagerating: productVariation.prov_averagerating ?? 0,
                 prov_reviewscount: productVariation.prov_reviewscount ?? 0,
+                mat_uuid: productVariation.mat_uuid,
+                gmat_uuid: productVariation.gmat_uuid,
+                gmat_name: productVariation.gmat_name,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(productVariation.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(productVariation.prov_updatedat, 'America/Buenos_Aires')
             }));
@@ -81,9 +84,9 @@ export class ProductVariationUseCase {
         }
     }
     
-    public async createProductVariation({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier } : { cmp_uuid: string, pro_uuid: string, prov_uuid: string, prov_code: string, prov_sku: string, prov_name: string, prov_description: string, prov_image: string, prov_color: string, prov_size: string, prov_stock: number; prov_suggestedminimumsellingprice: number, costsPerSupplier?: CostPerSupplierEntity[] }) {
+    public async createProductVariation({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier } : { cmp_uuid: string, pro_uuid: string, prov_uuid: string, prov_code: string, prov_sku: string, prov_name: string, prov_description: string, prov_image: string, mat_uuid: string, prov_color: string, prov_size: string, prov_stock: number; prov_suggestedminimumsellingprice: number, costsPerSupplier?: CostPerSupplierEntity[] }) {
         try {
-            const productVariationValue = new ProductVariationValue({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier });
+            const productVariationValue = new ProductVariationValue({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier });
             const productVariationCreated = await this.productVariationRepository.createProductVariation(productVariationValue);
             if(!productVariationCreated) {
                 throw new Error(`No se pudo insertar la variacion de articulo.`);
@@ -124,9 +127,9 @@ export class ProductVariationUseCase {
         }
     }
 
-    public async updateProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string, { prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier } : { prov_code: string, prov_sku: string, prov_name: string, prov_description: string, prov_image: string, prov_color: string, prov_size: string, prov_stock: number, prov_suggestedminimumsellingprice: number, costsPerSupplier?: CostPerSupplierEntity[] }) {
+    public async updateProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string, { prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, costsPerSupplier } : { prov_code: string, prov_sku: string, prov_name: string, prov_description: string, prov_image: string, mat_uuid: string, prov_color: string, prov_size: string, prov_stock: number, prov_suggestedminimumsellingprice: number, costsPerSupplier?: CostPerSupplierEntity[] }) {
         try {
-            const productVariationUpdated = await this.productVariationRepository.updateProductVariation(cmp_uuid, pro_uuid, prov_uuid, { prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice });
+            const productVariationUpdated = await this.productVariationRepository.updateProductVariation(cmp_uuid, pro_uuid, prov_uuid, { prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice });
             if(!productVariationUpdated) {
                 throw new Error(`No se pudo actualizar la variacion de articulo.`);
             }
@@ -252,6 +255,9 @@ export class ProductVariationUseCase {
                 itm_uuid: variation.itm_uuid,
                 pro_name: variation.pro_name,
                 cmp_name: variation.cmp_name,
+                mat_uuid: variation.mat_uuid,
+                gmat_uuid: variation.gmat_uuid,
+                gmat_name: variation.gmat_name,
                 prov_createdat: TimezoneConverter.toIsoStringInTimezone(variation.prov_createdat, 'America/Buenos_Aires'),
                 prov_updatedat: TimezoneConverter.toIsoStringInTimezone(variation.prov_updatedat, 'America/Buenos_Aires')
             }));

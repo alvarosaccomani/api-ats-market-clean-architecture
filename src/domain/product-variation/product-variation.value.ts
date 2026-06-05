@@ -12,6 +12,7 @@ export class ProductVariationValue implements ProductVariationEntity {
     prov_name: string;
     prov_description: string;
     prov_image: string;
+    mat_uuid: string;
     prov_color: string;
     prov_size: string;
     prov_stock: number;
@@ -31,6 +32,7 @@ export class ProductVariationValue implements ProductVariationEntity {
             prov_name,
             prov_description,
             prov_image,
+            mat_uuid,
             prov_color,
             prov_size,
             prov_stock,
@@ -49,6 +51,7 @@ export class ProductVariationValue implements ProductVariationEntity {
             prov_name: string,
             prov_description: string,
             prov_image: string,
+            mat_uuid: string,
             prov_color: string,
             prov_size: string,
             prov_stock: number,
@@ -67,6 +70,7 @@ export class ProductVariationValue implements ProductVariationEntity {
         this.prov_name = prov_name;
         this.prov_description = prov_description;
         this.prov_image = prov_image;
+        this.mat_uuid = mat_uuid;
         this.prov_color = prov_color;
         this.prov_size = prov_size;
         this.prov_stock = prov_stock;

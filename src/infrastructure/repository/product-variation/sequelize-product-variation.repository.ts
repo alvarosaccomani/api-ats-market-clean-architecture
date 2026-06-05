@@ -5,6 +5,8 @@ import { SequelizeProductVariation } from "../../model/product-variation/product
 import { SequelizeProductVariationReview } from "../../model/product-variation-review/product-variation-review.model";
 import { SequelizeProduct } from "../../model/product/product.model";
 import { SequelizeCompany } from "../../model/company/company.model";
+import { SequelizeMaterial } from "../../model/material/material.model";
+import { SequelizeGlobalMaterial } from "../../model/global-material/global-material.model";
 import { Op } from "sequelize";
 
 export class SequelizeRepository implements ProductVariationRepository {
@@ -30,10 +32,44 @@ export class SequelizeRepository implements ProductVariationRepository {
             if(!products) {
                 throw new Error(`No hay varaciones de productos`)
             };
+
+            // Fetch materials and global materials for all variations
+            const matUuids = [...new Set(products.map(p => p.mat_uuid).filter(Boolean))];
+            let materialMap = new Map();
+            let globalMaterialMap = new Map();
+            if (matUuids.length > 0) {
+                const materials = await SequelizeMaterial.findAll({
+                    where: {
+                        mat_uuid: { [Op.in]: matUuids }
+                    }
+                });
+                materialMap = new Map(materials.map(m => [m.mat_uuid, m.get({ plain: true })]));
+
+                const gmatUuids = [...new Set(materials.map(m => m.gmat_uuid).filter(Boolean))];
+                if (gmatUuids.length > 0) {
+                    const globalMaterials = await SequelizeGlobalMaterial.findAll({
+                        where: {
+                            gmat_uuid: { [Op.in]: gmatUuids }
+                        }
+                    });
+                    globalMaterialMap = new Map(globalMaterials.map(gm => [gm.gmat_uuid, gm.get({ plain: true })]));
+                }
+            }
             
             const results: ProductVariationEntity[] = [];
             for (const product of products) {
                 const productData = product.get({ plain: true }) as ProductVariationEntity;
+
+                // Merge material fields
+                const material = materialMap.get(productData.mat_uuid);
+                if (material) {
+                    productData.gmat_uuid = material.gmat_uuid;
+                    const globalMaterial = globalMaterialMap.get(material.gmat_uuid);
+                    if (globalMaterial) {
+                        productData.gmat_name = globalMaterial.gmat_name;
+                    }
+                }
+
                 const reviews = await SequelizeProductVariationReview.findAll({
                     where: {
                         cmp_uuid: productData.cmp_uuid,
@@ -89,8 +125,8 @@ export class SequelizeRepository implements ProductVariationRepository {
     }
     async createProductVariation(productVariation: ProductVariationEntity): Promise<ProductVariationEntity | null> {
         try {
-            let { cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat } = productVariation
-            const result = await SequelizeProductVariation.create({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat });
+            let { cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat } = productVariation
+            const result = await SequelizeProductVariation.create({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado el product`);
             }
@@ -231,6 +267,29 @@ export class SequelizeRepository implements ProductVariationRepository {
             });
             const companyMap = new Map(companies.map(c => [c.cmp_uuid, c.get({ plain: true })]));
 
+            // Fetch materials and global materials for all variations
+            const matUuids = [...new Set(variations.map(v => v.mat_uuid).filter(Boolean))];
+            let materialMap = new Map();
+            let globalMaterialMap = new Map();
+            if (matUuids.length > 0) {
+                const materials = await SequelizeMaterial.findAll({
+                    where: {
+                        mat_uuid: { [Op.in]: matUuids }
+                    }
+                });
+                materialMap = new Map(materials.map(m => [m.mat_uuid, m.get({ plain: true })]));
+
+                const gmatUuids = [...new Set(materials.map(m => m.gmat_uuid).filter(Boolean))];
+                if (gmatUuids.length > 0) {
+                    const globalMaterials = await SequelizeGlobalMaterial.findAll({
+                        where: {
+                            gmat_uuid: { [Op.in]: gmatUuids }
+                        }
+                    });
+                    globalMaterialMap = new Map(globalMaterials.map(gm => [gm.gmat_uuid, gm.get({ plain: true })]));
+                }
+            }
+
             const results: ProductVariationEntity[] = [];
             for (const variation of variations) {
                 const variationData = variation.get({ plain: true }) as any;
@@ -247,6 +306,16 @@ export class SequelizeRepository implements ProductVariationRepository {
                 const company = companyMap.get(variationData.cmp_uuid);
                 if (company) {
                     variationData.cmp_name = company.cmp_name;
+                }
+
+                // Merge material fields
+                const material = materialMap.get(variationData.mat_uuid);
+                if (material) {
+                    variationData.gmat_uuid = material.gmat_uuid;
+                    const globalMaterial = globalMaterialMap.get(material.gmat_uuid);
+                    if (globalMaterial) {
+                        variationData.gmat_name = globalMaterial.gmat_name;
+                    }
                 }
 
                 // Fetch reviews and compute rating/count
