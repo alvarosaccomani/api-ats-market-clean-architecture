@@ -3,6 +3,7 @@ import { SequelizeRepository as SequelizeCategoryRepository } from "../../reposi
 import { CategoryUseCase } from "../../../application/category/category-use-case";
 import { CategoryController } from "../../controller/category/category.controller";
 import SocketAdapter from "../../services/socketAdapter";
+import { authMiddleware } from "../../middleware/auth.middleware";
 
 function configureCategoryRoutes(app: Express, socketAdapter: SocketAdapter) {
     /*
@@ -25,9 +26,9 @@ function configureCategoryRoutes(app: Express, socketAdapter: SocketAdapter) {
     
     app.get(`/${process.env.BASE_URL_API}/categories/:cmp_uuid/:itm_uuid/:filter?/:page?/:perPage?`, categoryCtrl.getAllCtrl);
     app.get(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, categoryCtrl.getCtrl);
-    app.post(`/${process.env.BASE_URL_API}/category`, categoryCtrl.insertCtrl);
-    app.put(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, categoryCtrl.updateCtrl);
-    app.delete(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, categoryCtrl.deleteCtrl);
+    app.post(`/${process.env.BASE_URL_API}/category`, authMiddleware, categoryCtrl.insertCtrl);
+    app.put(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, authMiddleware, categoryCtrl.updateCtrl);
+    app.delete(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, authMiddleware, categoryCtrl.deleteCtrl);
 }
 
 export default configureCategoryRoutes;
