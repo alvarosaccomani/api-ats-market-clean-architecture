@@ -4,6 +4,7 @@ import { SequelizeRepository as SequelizeProductVariationRepository } from "../.
 import { ProductUseCase } from "../../../application/product/product-use-case";
 import { ProductController } from "../../controller/product/product.controller";
 import SocketAdapter from "../../services/socketAdapter";
+import { authMiddleware } from "../../middleware/auth.middleware";
 
 function configureProductRoutes(app: Express, socketAdapter: SocketAdapter) {
     /*
@@ -14,7 +15,7 @@ function configureProductRoutes(app: Express, socketAdapter: SocketAdapter) {
     const sequelizeProductVariationRepository = new SequelizeProductVariationRepository();
     
     /*
-    *   Iniciar casos de uso
+    *   Iniciar caso de uso
     */
     
     const productUseCase = new ProductUseCase(sequelizeProductRepository, sequelizeProductVariationRepository);
@@ -27,9 +28,9 @@ function configureProductRoutes(app: Express, socketAdapter: SocketAdapter) {
     
     app.get(`/${process.env.BASE_URL_API}/products/:cmp_uuid/:filter?/:page?/:perPage?`, productCtrl.getAllCtrl);
     app.get(`/${process.env.BASE_URL_API}/product/:cmp_uuid/:pro_uuid`, productCtrl.getCtrl);
-    app.post(`/${process.env.BASE_URL_API}/product`, productCtrl.insertCtrl);
-    app.put(`/${process.env.BASE_URL_API}/product/:cmp_uuid/:pro_uuid`, productCtrl.updateCtrl);
-    app.delete(`/${process.env.BASE_URL_API}/product/:cmp_uuid/:pro_uuid`, productCtrl.deleteCtrl);
+    app.post(`/${process.env.BASE_URL_API}/product`, authMiddleware, productCtrl.insertCtrl);
+    app.put(`/${process.env.BASE_URL_API}/product/:cmp_uuid/:pro_uuid`, authMiddleware, productCtrl.updateCtrl);
+    app.delete(`/${process.env.BASE_URL_API}/product/:cmp_uuid/:pro_uuid`, authMiddleware, productCtrl.deleteCtrl);
 }
 
 export default configureProductRoutes;
