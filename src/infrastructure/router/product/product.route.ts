@@ -29,6 +29,7 @@ function configureProductRoutes(app: Express, socketAdapter: SocketAdapter) {
     app.get(`/${process.env.BASE_URL_API}/products/:cmp_uuid/:filter?/:page?/:perPage?`, productCtrl.getAllCtrl);
     app.get(`/${process.env.BASE_URL_API}/product/:cmp_uuid/:pro_uuid`, productCtrl.getCtrl);
     app.post(`/${process.env.BASE_URL_API}/product`, authMiddleware, productCtrl.insertCtrl);
+    app.post(`/${process.env.BASE_URL_API}/products/bulk`, authMiddleware, productCtrl.bulkInsertCtrl);
     app.put(`/${process.env.BASE_URL_API}/product/:cmp_uuid/:pro_uuid`, authMiddleware, productCtrl.updateCtrl);
     app.delete(`/${process.env.BASE_URL_API}/product/:cmp_uuid/:pro_uuid`, authMiddleware, productCtrl.deleteCtrl);
 }
