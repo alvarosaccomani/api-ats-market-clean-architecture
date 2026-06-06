@@ -152,7 +152,7 @@ export class SequelizeRepository implements UserRepository {
     async saveUser(user: UserEntity): Promise<UserEntity | null> {
         try {
             
-            const authService = new AuthService(process.env.JWT_SECRET || 'default_secret');
+            const authService = new AuthService(process.env.JWT_SECRET || 'web_app_ats_management_api');
             const emailService = new EmailService();
 
             let { usr_uuid, usr_name, usr_surname, usr_password, usr_image, usr_email, usr_nick, usr_bio, usr_registered, usr_socket, usr_online, usr_confirmed, usr_confirmationtoken, usr_resetpasswordtoken, usr_resetpasswordexpires, usr_sysadmin, usr_createdat, usr_updatedat } = user;
@@ -224,7 +224,7 @@ export class SequelizeRepository implements UserRepository {
     };
     async confirmAccount( usr_confirmationtoken: string ): Promise<UserEntity | null> {
 
-        const authService = new AuthService(process.env.JWT_SECRET || 'default_secret');
+        const authService = new AuthService(process.env.JWT_SECRET || 'web_app_ats_management_api');
 
         if (!usr_confirmationtoken) {
             throw new Error('Token de confirmación no proporcionado.');
