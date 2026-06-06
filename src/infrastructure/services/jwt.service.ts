@@ -2,9 +2,8 @@ import * as jwt from 'jsonwebtoken';
 import moment from 'moment';
 import { UserEntity } from "../../domain/user/user.entity";
 
-const secret = 'web_app_ats_management_api';
-
 export function createToken(user: UserEntity) {
+    const secret = process.env.JWT_SECRET || 'web_app_ats_management_api';
     const payload =  {
         sub: user.usr_uuid,
         usr_nick: user.usr_nick,
