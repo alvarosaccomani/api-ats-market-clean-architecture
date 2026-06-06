@@ -53,8 +53,9 @@ export class AuthService {
     verifyToken(token: string): any {
         try {
             return jwt.verify(token, this.secretKey);
-        } catch (error) {
-            throw new Error('Token inválido o expirado.');
+        } catch (error: any) {
+            console.error('[AuthService] Error al verificar token:', error.message);
+            throw new Error(`Token inválido o expirado: ${error.message}`);
         }
     }
 }
