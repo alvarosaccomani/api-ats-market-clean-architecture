@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth-service.service';
 
-const authService = new AuthService(process.env.JWT_SECRET || 'web_app_ats_market_api');
-
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
@@ -27,6 +25,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   const token = parts[1];
 
   try {
+    const authService = new AuthService(process.env.JWT_SECRET || 'web_app_ats_management_api');
     const decoded = authService.verifyToken(token);
     (req as any).user = decoded;
     next();
