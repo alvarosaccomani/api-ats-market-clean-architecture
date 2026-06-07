@@ -41,6 +41,9 @@ export class OrderUseCase {
                 ord_contactphone: order.ord_contactphone,
                 ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
+                cou_uuid: order.cou_uuid,
+                ord_couponcode: order.ord_couponcode,
+                ord_discountamount: order.ord_discountamount,
                 ord_subtotal: order.ord_subtotal,
                 ord_shippingcost: order.ord_shippingcost,
                 ord_tax: order.ord_tax,
@@ -74,6 +77,9 @@ export class OrderUseCase {
                 ord_contactphone: order.ord_contactphone,
                 ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
+                cou_uuid: order.cou_uuid,
+                ord_couponcode: order.ord_couponcode,
+                ord_discountamount: order.ord_discountamount,
                 ord_subtotal: order.ord_subtotal,
                 ord_shippingcost: order.ord_shippingcost,
                 ord_tax: order.ord_tax,
@@ -90,9 +96,9 @@ export class OrderUseCase {
         }
     }
     
-    public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_customername: string, ord_customeremail: string, ord_contactphone: string, ords_uuid: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails: OrderDetailEntity[] }) {
+    public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_customername: string, ord_customeremail: string, ord_contactphone: string, ords_uuid: string, ord_date: Date, cou_uuid?: string | null, ord_couponcode?: string | null, ord_discountamount?: number, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails: OrderDetailEntity[] }) {
         try {
-            const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails });
+            const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails });
             const orderCreated = await this.orderRepository.createOrder(orderValue);
             if(!orderCreated) {
                 throw new Error(`No se pudo insertar la orden.`);
@@ -132,6 +138,9 @@ export class OrderUseCase {
                 ord_contactphone: orderCreated.ord_contactphone,
                 ords_uuid: orderCreated.ords_uuid,
                 ord_date: orderCreated.ord_date,
+                cou_uuid: orderCreated.cou_uuid,
+                ord_couponcode: orderCreated.ord_couponcode,
+                ord_discountamount: orderCreated.ord_discountamount,
                 ord_subtotal: orderCreated.ord_subtotal,
                 ord_shippingcost: orderCreated.ord_shippingcost,
                 ord_tax: orderCreated.ord_tax,
@@ -196,6 +205,9 @@ export class OrderUseCase {
                 ord_contactphone: orderUpdated.ord_contactphone,
                 ords_uuid: orderUpdated.ords_uuid,
                 ord_date: orderUpdated.ord_date,
+                cou_uuid: orderUpdated.cou_uuid,
+                ord_couponcode: orderUpdated.ord_couponcode,
+                ord_discountamount: orderUpdated.ord_discountamount,
                 ord_subtotal: orderUpdated.ord_subtotal,
                 ord_shippingcost: orderUpdated.ord_shippingcost,
                 ord_tax: orderUpdated.ord_tax,
@@ -262,6 +274,9 @@ export class OrderUseCase {
                 ord_contactphone: order.ord_contactphone,
                 ords_uuid: order.ords_uuid,
                 ord_date: order.ord_date,
+                cou_uuid: order.cou_uuid,
+                ord_couponcode: order.ord_couponcode,
+                ord_discountamount: order.ord_discountamount,
                 ord_subtotal: order.ord_subtotal,
                 ord_shippingcost: order.ord_shippingcost,
                 ord_tax: order.ord_tax,
@@ -306,6 +321,9 @@ export class OrderUseCase {
                 ord_contactphone: orderUpdated.ord_contactphone,
                 ords_uuid: orderUpdated.ords_uuid,
                 ord_date: orderUpdated.ord_date,
+                cou_uuid: orderUpdated.cou_uuid,
+                ord_couponcode: orderUpdated.ord_couponcode,
+                ord_discountamount: orderUpdated.ord_discountamount,
                 ord_subtotal: orderUpdated.ord_subtotal,
                 ord_shippingcost: orderUpdated.ord_shippingcost,
                 ord_tax: orderUpdated.ord_tax,

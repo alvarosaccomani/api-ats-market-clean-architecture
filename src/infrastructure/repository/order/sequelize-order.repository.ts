@@ -3,6 +3,7 @@ import { OrderRepository } from "../../../domain/order/order.repository";
 import { SequelizeOrderDetail } from "../../model/order-detail/order-detail.model";
 import { SequelizeOrder } from "../../model/order/order.model";
 import { SequelizeCustomer } from "../../model/customer/customer.model";
+import { SequelizeCoupon } from "../../model/coupon/coupon.model";
 
 export class SequelizeRepository implements OrderRepository {
     async getOrders(cmp_uuid: string): Promise<OrderEntity[] | null> {
@@ -50,11 +51,24 @@ export class SequelizeRepository implements OrderRepository {
     }
     async createOrder(order: OrderEntity): Promise<OrderEntity | null> {
         try {
-            let { cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat } = order
-            const result = await SequelizeOrder.create({ cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat });
+            let { cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat } = order
+            const result = await SequelizeOrder.create({ cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado la orden`);
             }
+
+            // Si se usó un cupón, incrementar su contador de uso
+            if (cou_uuid) {
+                try {
+                    await SequelizeCoupon.increment('cou_usedcount', {
+                        by: 1,
+                        where: { cmp_uuid, cou_uuid }
+                    });
+                } catch (couponError: any) {
+                    console.error('Error al incrementar el uso del cupón:', couponError.message);
+                }
+            }
+
             let newOrder = result.dataValues as SequelizeOrder
             return newOrder;
         } catch (error: any) {

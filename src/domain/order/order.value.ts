@@ -23,6 +23,9 @@ export class OrderValue implements OrderEntity {
     ord_trackingnumber: string;
     ord_createdat: Date;
     ord_updatedat: Date;
+    cou_uuid?: string | null; 
+    ord_couponcode?: string | null;
+    ord_discountamount?: number;
     orderDetails?: OrderDetailEntity[];
     
     constructor({
@@ -45,6 +48,9 @@ export class OrderValue implements OrderEntity {
             ord_trackingnumber,
             ord_createdat,
             ord_updatedat,
+            cou_uuid,
+            ord_couponcode,
+            ord_discountamount,
             orderDetails
         }:{ 
             cmp_uuid: string,
@@ -66,6 +72,9 @@ export class OrderValue implements OrderEntity {
             ord_trackingnumber: string,
             ord_createdat?: Date,
             ord_updatedat?: Date,
+            cou_uuid?: string | null,
+            ord_couponcode?: string | null,
+            ord_discountamount?: number,
             orderDetails?: OrderDetailEntity[]
         }) {
         this.cmp_uuid = cmp_uuid;
@@ -87,6 +96,9 @@ export class OrderValue implements OrderEntity {
         this.ord_trackingnumber = ord_trackingnumber;
         this.ord_createdat = ord_createdat ?? moment().toDate();
         this.ord_updatedat = ord_updatedat ?? moment().toDate();
+        this.cou_uuid = cou_uuid ?? null;
+        this.ord_couponcode = ord_couponcode ?? null;
+        this.ord_discountamount = ord_discountamount ?? 0;
         this.orderDetails = orderDetails ?? [];
     }
 }

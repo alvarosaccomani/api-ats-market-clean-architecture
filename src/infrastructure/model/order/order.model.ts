@@ -3,6 +3,7 @@ import { sequelize } from '../../db/sequelize';
 import { OrderEntity } from "../../../domain/order/order.entity";
 import { SequelizeCustomer } from '../customer/customer.model';
 import { SequelizeOrderDetail } from '../order-detail/order-detail.model';
+import { SequelizeCoupon } from '../coupon/coupon.model';
 
 export class SequelizeOrder extends Model<OrderEntity, Omit<OrderEntity, 'id'>> {
   declare cmp_uuid: string;
@@ -16,6 +17,9 @@ export class SequelizeOrder extends Model<OrderEntity, Omit<OrderEntity, 'id'>> 
   declare ord_contactphone: string;
   declare ords_uuid: string;
   declare ord_date: Date;
+  declare cou_uuid: string;
+  declare ord_couponcode: string;
+  declare ord_discountamount: number;
   declare ord_subtotal: number;
   declare ord_shippingcost: number;
   declare ord_tax: number;
@@ -71,6 +75,18 @@ SequelizeOrder.init({
   },
   ord_date: {
     type: DataTypes.DATE,
+    allowNull: true
+  },
+  cou_uuid: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  ord_couponcode: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  ord_discountamount: {
+    type: DataTypes.FLOAT,
     allowNull: true
   },
   ord_subtotal: {
@@ -130,7 +146,13 @@ SequelizeOrder.hasMany(SequelizeOrderDetail, {
     as: 'orderDetails'
 });
 
+SequelizeOrder.belongsTo(SequelizeCoupon, {
+    foreignKey: 'cou_uuid',
+    targetKey: 'cou_uuid',
+    as: 'coupon'
+});
+
 // Sincronizar (solo en desarrollo)
 if (process.env.NODE_ENV !== "production") {
-    SequelizeOrder.sync();
+    SequelizeOrder.sync({ alter: true });
 }
