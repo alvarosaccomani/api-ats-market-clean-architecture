@@ -18,24 +18,45 @@ export class ProductUseCase {
         this.findProductByName = this.findProductByName.bind(this);
     }
 
-    public async getProducts(cmp_uuid: string) {
+    public async getProducts(
+        cmp_uuid: string,
+        page?: number,
+        perPage?: number,
+        filters?: {
+            itm_uuid?: string;
+            cat_uuid?: string;
+            stockStatus?: string;
+            search?: string;
+        }
+    ) {
         try {
-            const product = await this.productRepository.getProducts(cmp_uuid);
+            const product = await this.productRepository.getProducts(cmp_uuid, page, perPage, filters);
             if(!product) {
                 throw new Error('No hay articulos.');
             }
-            return product.map(product => ({
-                cmp_uuid: product.cmp_uuid,
-                pro_uuid: product.pro_uuid,
-                pro_code: product.pro_code,
-                pro_name: product.pro_name,
-                pro_image: product.pro_image,
-                pro_description: product.pro_description,
-                itm_uuid: product.itm_uuid,
-                cat_uuid: product.cat_uuid,
-                pro_createdat: TimezoneConverter.toIsoStringInTimezone(product.pro_createdat, 'America/Buenos_Aires'),
-                pro_updatedat: TimezoneConverter.toIsoStringInTimezone(product.pro_updatedat, 'America/Buenos_Aires')
-            }));
+
+            const mapProduct = (p: any) => ({
+                cmp_uuid: p.cmp_uuid,
+                pro_uuid: p.pro_uuid,
+                pro_code: p.pro_code,
+                pro_name: p.pro_name,
+                pro_image: p.pro_image,
+                pro_description: p.pro_description,
+                itm_uuid: p.itm_uuid,
+                cat_uuid: p.cat_uuid,
+                productVariations: p.productVariations,
+                pro_createdat: TimezoneConverter.toIsoStringInTimezone(p.pro_createdat, 'America/Buenos_Aires'),
+                pro_updatedat: TimezoneConverter.toIsoStringInTimezone(p.pro_updatedat, 'America/Buenos_Aires')
+            });
+
+            if (Array.isArray(product)) {
+                return product.map(mapProduct);
+            } else {
+                return {
+                    rows: product.rows.map(mapProduct),
+                    count: product.count
+                };
+            }
         } catch (error: any) {
             console.error('Error en getProducts (use case):', error.message);
             throw error; // Propagar el error hacia el controlador

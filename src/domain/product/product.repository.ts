@@ -1,7 +1,17 @@
 import { ProductEntity, ProductUpdateData } from "./product.entity";
 
 export interface ProductRepository {
-    getProducts(cmp_uuid: string): Promise<ProductEntity[] | null>;
+    getProducts(
+        cmp_uuid: string,
+        page?: number,
+        perPage?: number,
+        filters?: {
+            itm_uuid?: string;
+            cat_uuid?: string;
+            stockStatus?: string;
+            search?: string;
+        }
+    ): Promise<{ rows: ProductEntity[]; count: number } | ProductEntity[] | null>;
     findProductById(cmp_uuid: string, pro_uuid: string): Promise<ProductEntity | null>;
     createProduct(product: ProductEntity): Promise<ProductEntity | null>;
     updateProduct(cmp_uuid: string, pro_uuid: string, product: ProductUpdateData): Promise<ProductEntity | null>;

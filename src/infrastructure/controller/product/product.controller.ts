@@ -19,9 +19,20 @@ export class ProductController {
     public async getAllCtrl(req: Request, res: Response) {
         try {
             const cmp_uuid = req.params.cmp_uuid;
-            const pro_uuid = req.params.pro_uuid; 
-            const page = (req.params.page ? parseInt(req.params.page) : null);
-            const perPage = (req.params.perPage ? parseInt(req.params.perPage) : null);
+            
+            const pageQuery = (req.query.page || req.params.page) as string | undefined;
+            const perPageQuery = (req.query.perPage || req.params.perPage) as string | undefined;
+            
+            const page = (pageQuery && !isNaN(parseInt(pageQuery, 10))) ? parseInt(pageQuery, 10) : undefined;
+            const perPage = (perPageQuery && !isNaN(parseInt(perPageQuery, 10))) ? parseInt(perPageQuery, 10) : undefined;
+
+            const filters = {
+                itm_uuid: req.query.itm_uuid as string | undefined,
+                cat_uuid: req.query.cat_uuid as string | undefined,
+                stockStatus: req.query.stockStatus as string | undefined,
+                search: req.query.search as string | undefined
+            };
+
             if(!cmp_uuid || cmp_uuid.toLowerCase() === 'null' || cmp_uuid.toLowerCase() === 'undefined') {
                 return res.status(400).json({
                     success: false,
@@ -29,15 +40,28 @@ export class ProductController {
                     error: 'Debe proporcionar un Id de company.'
                 });
             }
-            if (page && perPage) {
-                const product = await this.productUseCase.getProducts(cmp_uuid)
+            if (page !== undefined && perPage !== undefined) {
+                const result = await this.productUseCase.getProducts(cmp_uuid, page, perPage, filters);
+                const { rows, count } = result as { rows: any[]; count: number };
+                
+                const offset = (page - 1) * perPage;
+                const totalPages = Math.ceil(count / perPage);
+
                 return res.status(200).send({
                     success: true,
                     message: 'Articulos retornados.',
-                    ...paginator(product, page, perPage)
+                    page: page,
+                    item: offset + 1,
+                    itemOf: offset + rows.length,
+                    perPage: perPage,
+                    prePage: page > 1 ? page - 1 : null,
+                    nextPage: (totalPages > page) ? page + 1 : null,
+                    total: count,
+                    totalPages: totalPages,
+                    data: rows
                 });
             } else {
-                const product = await this.productUseCase.getProducts(cmp_uuid)
+                const product = await this.productUseCase.getProducts(cmp_uuid, undefined, undefined, filters);
                 return res.status(200).send({
                     success: true,
                     message: 'Articulos retornados.',

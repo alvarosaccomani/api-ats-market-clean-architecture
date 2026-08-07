@@ -3,20 +3,88 @@ import { ProductRepository } from "../../../domain/product/product.repository";
 import { SequelizeProductVariation } from "../../model/product-variation/product-variation.model";
 import { SequelizeProduct } from "../../model/product/product.model";
 import { Op } from "sequelize";
+import { sequelize } from "../../db/sequelize";
 
 export class SequelizeRepository implements ProductRepository {
-    async getProducts(cmp_uuid: string): Promise<ProductEntity[] | null> {
+    async getProducts(
+        cmp_uuid: string,
+        page?: number,
+        perPage?: number,
+        filters?: {
+            itm_uuid?: string;
+            cat_uuid?: string;
+            stockStatus?: string;
+            search?: string;
+        }
+    ): Promise<{ rows: ProductEntity[]; count: number } | ProductEntity[] | null> {
         try {
-            let config = {
-                where: {
-                    cmp_uuid: cmp_uuid ?? null
+            const where: any = {
+                cmp_uuid: cmp_uuid ?? null
+            };
+
+            if (filters) {
+                if (filters.itm_uuid) {
+                    where.itm_uuid = filters.itm_uuid;
+                }
+                if (filters.cat_uuid) {
+                    where.cat_uuid = filters.cat_uuid;
+                }
+                if (filters.search) {
+                    where[Op.or] = [
+                        { pro_name: { [Op.iLike]: `%${filters.search}%` } },
+                        { pro_code: { [Op.iLike]: `%${filters.search}%` } }
+                    ];
+                }
+                if (filters.stockStatus) {
+                    if (filters.stockStatus === 'IN_STOCK') {
+                        where.pro_uuid = {
+                            [Op.in]: sequelize.literal(`(SELECT DISTINCT pro_uuid FROM prov_productsvariations WHERE cmp_uuid = '${cmp_uuid}' AND prov_stock > 0)`)
+                        };
+                    } else if (filters.stockStatus === 'OUT_OF_STOCK') {
+                        where.pro_uuid = {
+                            [Op.notIn]: sequelize.literal(`(SELECT DISTINCT pro_uuid FROM prov_productsvariations WHERE cmp_uuid = '${cmp_uuid}' AND prov_stock > 0)`)
+                        };
+                    } else if (filters.stockStatus === 'LOW_STOCK') {
+                        where.pro_uuid = {
+                            [Op.in]: sequelize.literal(`(SELECT DISTINCT pro_uuid FROM prov_productsvariations WHERE cmp_uuid = '${cmp_uuid}' AND prov_stock <= 5 AND prov_stock > 0)`)
+                        };
+                    }
                 }
             }
-            const products = await SequelizeProduct.findAll(config);
-            if(!products) {
-                throw new Error(`No hay articulos`)
-            };
-            return products;
+
+            if (page !== undefined && perPage !== undefined) {
+                const limit = perPage;
+                const offset = (page - 1) * limit;
+
+                const result = await SequelizeProduct.findAndCountAll({
+                    where,
+                    limit,
+                    offset,
+                    include: [
+                        {
+                            model: SequelizeProductVariation,
+                            as: 'productVariations'
+                        }
+                    ],
+                    distinct: true
+                });
+
+                return {
+                    rows: result.rows,
+                    count: result.count
+                };
+            } else {
+                const products = await SequelizeProduct.findAll({
+                    where,
+                    include: [
+                        {
+                            model: SequelizeProductVariation,
+                            as: 'productVariations'
+                        }
+                    ]
+                });
+                return products;
+            }
         } catch (error: any) {
             console.error('Error en getProducts:', error.message);
             throw error;
