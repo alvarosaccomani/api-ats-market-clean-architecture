@@ -49,10 +49,10 @@ export class SequelizeRepository implements OrderRepository {
             throw error;
         }
     }
-    async createOrder(order: OrderEntity): Promise<OrderEntity | null> {
+    async createOrder(order: OrderEntity, options?: { transaction?: any }): Promise<OrderEntity | null> {
         try {
             let { cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat } = order
-            const result = await SequelizeOrder.create({ cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat });
+            const result = await SequelizeOrder.create({ cmp_uuid, ord_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, ord_createdat, ord_updatedat }, { transaction: options?.transaction });
             if(!result) {
                 throw new Error(`No se ha agregado la orden`);
             }
@@ -62,7 +62,8 @@ export class SequelizeRepository implements OrderRepository {
                 try {
                     await SequelizeCoupon.increment('cou_usedcount', {
                         by: 1,
-                        where: { cmp_uuid, cou_uuid }
+                        where: { cmp_uuid, cou_uuid },
+                        transaction: options?.transaction
                     });
                 } catch (couponError: any) {
                     console.error('Error al incrementar el uso del cupón:', couponError.message);
@@ -76,7 +77,7 @@ export class SequelizeRepository implements OrderRepository {
             throw error;
         }
     }
-    async updateOrder(cmp_uuid: string, ord_uuid: string, order: OrderUpdateData): Promise<OrderEntity | null> {
+    async updateOrder(cmp_uuid: string, ord_uuid: string, order: OrderUpdateData, options?: { transaction?: any }): Promise<OrderEntity | null> {
         try {
             const [updatedCount, [updatedOrder]] = await SequelizeOrder.update(
                 { 
@@ -96,6 +97,7 @@ export class SequelizeRepository implements OrderRepository {
                 { 
                     where: { cmp_uuid, ord_uuid },
                     returning: true,
+                    transaction: options?.transaction,
                 }
             );
             if (updatedCount === 0) {
@@ -137,13 +139,14 @@ export class SequelizeRepository implements OrderRepository {
             throw error;
         }
     }
-    async changeOrderStatus(cmp_uuid: string, ord_uuid: string, ords_uuid: string): Promise<OrderEntity | null> {
+    async changeOrderStatus(cmp_uuid: string, ord_uuid: string, ords_uuid: string, options?: { transaction?: any }): Promise<OrderEntity | null> {
         try {
             const [updatedCount, [updatedOrder]] = await SequelizeOrder.update(
                 { ords_uuid },
                 { 
                     where: { cmp_uuid, ord_uuid },
                     returning: true,
+                    transaction: options?.transaction,
                 }
             );
             if (updatedCount === 0) {

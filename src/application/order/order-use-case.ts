@@ -6,6 +6,7 @@ import { OrderDetailRepository } from "../../domain/order-detail/order-detail.re
 import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter";
 import { OrderHistoryRepository } from "../../domain/order-history/order-history.repository";
 import { OrderHistoryValue } from "../../domain/order-history/order-history.value";
+import { sequelize } from "../../infrastructure/db/sequelize";
 
 export class OrderUseCase {
     constructor(
@@ -97,9 +98,10 @@ export class OrderUseCase {
     }
     
     public async createOrder({ cmp_uuid, usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { cmp_uuid: string, usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_customername: string, ord_customeremail: string, ord_contactphone: string, ords_uuid: string, ord_date: Date, cou_uuid?: string | null, ord_couponcode?: string | null, ord_discountamount?: number, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails: OrderDetailEntity[] }) {
+        const transaction = await sequelize.transaction();
         try {
             const orderValue = new OrderValue({ cmp_uuid, ord_uuid: uuid(), usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, cou_uuid, ord_couponcode, ord_discountamount, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails });
-            const orderCreated = await this.orderRepository.createOrder(orderValue);
+            const orderCreated = await this.orderRepository.createOrder(orderValue, { transaction });
             if(!orderCreated) {
                 throw new Error(`No se pudo insertar la orden.`);
             }
@@ -108,7 +110,7 @@ export class OrderUseCase {
                 for (const orderDetail of orderValue.orderDetails) {
                     orderDetail.ord_uuid = orderCreated.ord_uuid;
                     orderDetail.ordd_uuid = uuid();
-                    const orderDetailCreated = await this.orderDetailRepository.createDetailOrder(orderDetail);
+                    const orderDetailCreated = await this.orderDetailRepository.createDetailOrder(orderDetail, { transaction });
                     if (!orderDetailCreated) {
                         throw new Error(`No se pudo insertar el detalle de la orden.`);                        
                     }
@@ -124,7 +126,9 @@ export class OrderUseCase {
                 usr_uuid: orderCreated.usr_uuid,
                 ordh_comment: "Orden registrada inicialmente."
             });
-            await this.orderHistoryRepository.createOrderHistory(historyValue);
+            await this.orderHistoryRepository.createOrderHistory(historyValue, { transaction });
+
+            await transaction.commit();
 
             return {
                 cmp_uuid: orderCreated.cmp_uuid,
@@ -151,30 +155,46 @@ export class OrderUseCase {
                 ord_updatedat: TimezoneConverter.toIsoStringInTimezone(orderCreated.ord_updatedat, 'America/Buenos_Aires')
             };
         } catch (error: any) {
+            await transaction.rollback();
             console.error('Error en createOrder (use case):', error.message);
             throw error; // Propagar el error hacia el controlador
         }
     }
 
     public async updateOrder(cmp_uuid: string, ord_uuid: string, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber, orderDetails } : { usr_uuid: string, cus_uuid: string, adr_uuid: string, ord_ordernumber: number, ord_customername: string, ord_customeremail: string, ord_contactphone: string, ords_uuid: string, ord_date: Date, ord_subtotal: number, ord_shippingcost: number, ord_tax: number, ord_total: number, ord_customernotes: string, ord_trackingnumber: string, orderDetails?: OrderDetailEntity[] }) {
+        const transaction = await sequelize.transaction();
         try {
-            const orderUpdated = await this.orderRepository.updateOrder(cmp_uuid, ord_uuid, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber });
+            const orderUpdated = await this.orderRepository.updateOrder(cmp_uuid, ord_uuid, { usr_uuid, cus_uuid, adr_uuid, ord_ordernumber, ord_customername, ord_customeremail, ord_contactphone, ords_uuid, ord_date, ord_subtotal, ord_shippingcost, ord_tax, ord_total, ord_customernotes, ord_trackingnumber }, { transaction });
             if(!orderUpdated) {
                 throw new Error(`No se pudo actualizar la orden.`);
             }
+
+            // Limpieza de detalles huérfanos
+            const existingDetails = await this.orderDetailRepository.getDetailOrders(cmp_uuid, ord_uuid);
+            if (existingDetails) {
+                const receivedUuids = (orderDetails || [])
+                    .map(d => d.ordd_uuid)
+                    .filter((id): id is string => !!id);
+                for (const existingDetail of existingDetails) {
+                    if (existingDetail.ordd_uuid && !receivedUuids.includes(existingDetail.ordd_uuid)) {
+                        await this.orderDetailRepository.deleteDetailOrder(cmp_uuid, ord_uuid, existingDetail.ordd_uuid, { transaction });
+                    }
+                }
+            }
+
             if (orderDetails && orderDetails?.length) {
                 const orderDetailsCreated = [];
                 for (const orderDetail of orderDetails) {
                     if (!orderDetail.ordd_uuid) {
                         orderDetail.ord_uuid = orderUpdated.ord_uuid;
                         orderDetail.ordd_uuid = uuid();
-                        const orderDetailCreated = await this.orderDetailRepository.createDetailOrder(orderDetail);
+                        const orderDetailCreated = await this.orderDetailRepository.createDetailOrder(orderDetail, { transaction });
                         if (!orderDetailCreated) {
                             throw new Error(`No se pudo insertar el detalle de la orden.`);
                         }
                         orderDetailsCreated.push(orderDetailCreated);
                     } else {
-                        const orderDetailUpdated = await this.orderDetailRepository.updateDetailOrder(orderDetail.cmp_uuid, orderDetail.ord_uuid, orderDetail.ordd_uuid, orderDetail);
+                        const orderDetailUpdated = await this.orderDetailRepository.updateDetailOrder(orderDetail.cmp_uuid, orderDetail.ord_uuid, orderDetail.ordd_uuid, orderDetail, { transaction });
                         if (!orderDetailUpdated) {
                             throw new Error(`No se pudo actualizar el detalle de la orden.`);
                         }
@@ -191,7 +211,9 @@ export class OrderUseCase {
                 usr_uuid: orderUpdated.usr_uuid,
                 ordh_comment: "Orden modificada."
             });
-            await this.orderHistoryRepository.createOrderHistory(historyValue);
+            await this.orderHistoryRepository.createOrderHistory(historyValue, { transaction });
+
+            await transaction.commit();
 
             return {
                 cmp_uuid: orderUpdated.cmp_uuid,
@@ -218,6 +240,7 @@ export class OrderUseCase {
                 ord_updatedat: TimezoneConverter.toIsoStringInTimezone(orderUpdated.ord_updatedat, 'America/Buenos_Aires')
             };
         } catch (error: any) {
+            await transaction.rollback();
             console.error('Error en updateOrder (use case):', error.message);
             throw error; // Propagar el error hacia el controlador
         }
@@ -293,8 +316,9 @@ export class OrderUseCase {
     }
 
     public async changeOrderStatus(cmp_uuid: string, ord_uuid: string, ords_uuid: string, usr_uuid?: string, odh_comment?: string) {
+        const transaction = await sequelize.transaction();
         try {
-            const orderUpdated = await this.orderRepository.changeOrderStatus(cmp_uuid, ord_uuid, ords_uuid);
+            const orderUpdated = await this.orderRepository.changeOrderStatus(cmp_uuid, ord_uuid, ords_uuid, { transaction });
             if(!orderUpdated) {
                 throw new Error(`No se pudo cambiar el estado de la orden.`);
             }
@@ -307,7 +331,9 @@ export class OrderUseCase {
                 usr_uuid: usr_uuid || orderUpdated.usr_uuid || "",
                 ordh_comment: odh_comment || `Estado de orden cambiado a: ${ords_uuid}`
             });
-            await this.orderHistoryRepository.createOrderHistory(historyValue);
+            await this.orderHistoryRepository.createOrderHistory(historyValue, { transaction });
+
+            await transaction.commit();
 
             return {
                 cmp_uuid: orderUpdated.cmp_uuid,
@@ -334,6 +360,7 @@ export class OrderUseCase {
                 ord_updatedat: TimezoneConverter.toIsoStringInTimezone(orderUpdated.ord_updatedat, 'America/Buenos_Aires')
             };
         } catch (error: any) {
+            await transaction.rollback();
             console.error('Error en changeOrderStatus (use case):', error.message);
             throw error;
         }
