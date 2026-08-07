@@ -40,10 +40,10 @@ export class SequelizeRepository implements OrderDetailRepository {
         }
     }
 
-    async createDetailOrder(orderDetail: OrderDetailEntity): Promise<OrderDetailEntity | null> {
+    async createDetailOrder(orderDetail: OrderDetailEntity, options?: { transaction?: any }): Promise<OrderDetailEntity | null> {
         try {
             let { cmp_uuid, ord_uuid, ordd_uuid, pro_uuid, prov_uuid, ordd_productname, ordd_code, ordd_sku, ordd_quantity, ordd_unitprice, ordd_discount, ordd_subtotal, ordd_taxrate, ordd_tax, ordd_basecost, ordd_createdat, ordd_updatedat } = orderDetail;
-            const result = await SequelizeOrderDetail.create({ cmp_uuid, ord_uuid, ordd_uuid, pro_uuid, prov_uuid, ordd_productname, ordd_code, ordd_sku, ordd_quantity, ordd_unitprice, ordd_discount, ordd_subtotal, ordd_taxrate, ordd_tax, ordd_basecost, ordd_createdat, ordd_updatedat });
+            const result = await SequelizeOrderDetail.create({ cmp_uuid, ord_uuid, ordd_uuid, pro_uuid, prov_uuid, ordd_productname, ordd_code, ordd_sku, ordd_quantity, ordd_unitprice, ordd_discount, ordd_subtotal, ordd_taxrate, ordd_tax, ordd_basecost, ordd_createdat, ordd_updatedat }, { transaction: options?.transaction });
             if (!result) {
                 throw new Error(`No se ha agregado el detalle de orden`);
             }
@@ -55,7 +55,7 @@ export class SequelizeRepository implements OrderDetailRepository {
         }
     }
 
-    async updateDetailOrder(cmp_uuid: string, ord_uuid: string, ordd_uuid: string, orderDetail: OrderDetailUpdateData): Promise<OrderDetailEntity | null> {
+    async updateDetailOrder(cmp_uuid: string, ord_uuid: string, ordd_uuid: string, orderDetail: OrderDetailUpdateData, options?: { transaction?: any }): Promise<OrderDetailEntity | null> {
         try {
             const [updatedCount, [updatedDetail]] = await SequelizeOrderDetail.update(
                 { 
@@ -75,6 +75,7 @@ export class SequelizeRepository implements OrderDetailRepository {
                 { 
                     where: { cmp_uuid, ord_uuid, ordd_uuid },
                     returning: true, // necesario en PostgreSQL
+                    transaction: options?.transaction,
                 }
             );
             if (updatedCount === 0) {
@@ -87,14 +88,15 @@ export class SequelizeRepository implements OrderDetailRepository {
         }
     }
 
-    async deleteDetailOrder(cmp_uuid: string, ord_uuid: string, ordd_uuid: string): Promise<OrderDetailEntity | null> {
+    async deleteDetailOrder(cmp_uuid: string, ord_uuid: string, ordd_uuid: string, options?: { transaction?: any }): Promise<OrderDetailEntity | null> {
         try {
             const detailToDelete = await this.findDetailOrderById(cmp_uuid, ord_uuid, ordd_uuid);
             if (!detailToDelete) {
                 throw new Error(`No se ha encontrado el detalle de orden a eliminar`);
             }
             const deletedCount = await SequelizeOrderDetail.destroy({
-                where: { cmp_uuid, ord_uuid, ordd_uuid }
+                where: { cmp_uuid, ord_uuid, ordd_uuid },
+                transaction: options?.transaction
             });
             if (deletedCount === 0) {
                 throw new Error(`No se pudo eliminar el detalle de orden`);
