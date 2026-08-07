@@ -41,7 +41,7 @@ export class SequelizeRepository implements OrderHistoryRepository {
         }
     }
 
-    async createOrderHistory(orderHistory: OrderHistoryEntity): Promise<OrderHistoryEntity | null> {
+    async createOrderHistory(orderHistory: OrderHistoryEntity, options?: { transaction?: any }): Promise<OrderHistoryEntity | null> {
         try {
             const { 
                 cmp_uuid, 
@@ -61,7 +61,7 @@ export class SequelizeRepository implements OrderHistoryRepository {
                 usr_uuid, 
                 ordh_comment, 
                 ordh_createdat 
-            });
+            }, { transaction: options?.transaction });
             
             if (!result) {
                 throw new Error(`No se pudo agregar la trazabilidad de la orden`);
