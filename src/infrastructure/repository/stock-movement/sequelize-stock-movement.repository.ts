@@ -41,10 +41,10 @@ export class SequelizeRepository implements StockMovementRepository {
         }
     }
 
-    async createStockMovement(stockMovement: StockMovementEntity): Promise<StockMovementEntity | null> {
+    async createStockMovement(stockMovement: StockMovementEntity, options?: { transaction?: any }): Promise<StockMovementEntity | null> {
         try {
             let { cmp_uuid, pro_uuid, prov_uuid, smo_uuid, ord_uuid, usr_uuid, tsmo_uuid, smo_quantity, smo_previousstock, smo_currentstock, smo_reason, smo_createdat, smo_updatedat } = stockMovement;
-            const result = await SequelizeStockMovement.create({ cmp_uuid, pro_uuid, prov_uuid, smo_uuid, ord_uuid, usr_uuid, tsmo_uuid, smo_quantity, smo_previousstock, smo_currentstock, smo_reason, smo_createdat, smo_updatedat });
+            const result = await SequelizeStockMovement.create({ cmp_uuid, pro_uuid, prov_uuid, smo_uuid, ord_uuid, usr_uuid, tsmo_uuid, smo_quantity, smo_previousstock, smo_currentstock, smo_reason, smo_createdat, smo_updatedat }, { transaction: options?.transaction });
             if (!result) {
                 throw new Error(`No se pudo agregar el movimiento de stock`);
             }

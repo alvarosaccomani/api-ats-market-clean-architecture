@@ -10,6 +10,7 @@ export class StockMovementController {
         this.insertCtrl = this.insertCtrl.bind(this);
         this.updateCtrl = this.updateCtrl.bind(this);
         this.deleteCtrl = this.deleteCtrl.bind(this);
+        this.registerAdjustmentCtrl = this.registerAdjustmentCtrl.bind(this);
     }
 
     public async getAllCtrl(req: Request, res: Response) {
@@ -189,6 +190,58 @@ export class StockMovementController {
             return res.status(400).json({
                 success: false,
                 message: 'No se pudo eliminar el movimiento de stock.',
+                error: error.message,
+            });
+        }
+    }
+
+    public async registerAdjustmentCtrl({ body }: Request, res: Response) {
+        try {
+            const {
+                cmp_uuid,
+                pro_uuid,
+                prov_uuid,
+                war_uuid,
+                warl_uuid,
+                usr_uuid,
+                tsmo_uuid,
+                smo_quantity,
+                smo_previousstock,
+                smo_currentstock,
+                smo_reason
+            } = body;
+
+            if (!cmp_uuid) return res.status(400).json({ success: false, message: 'Falta cmp_uuid.' });
+            if (!pro_uuid) return res.status(400).json({ success: false, message: 'Falta pro_uuid.' });
+            if (!prov_uuid) return res.status(400).json({ success: false, message: 'Falta prov_uuid.' });
+            if (!war_uuid) return res.status(400).json({ success: false, message: 'Falta war_uuid.' });
+            if (!warl_uuid) return res.status(400).json({ success: false, message: 'Falta warl_uuid.' });
+            if (!tsmo_uuid) return res.status(400).json({ success: false, message: 'Falta tsmo_uuid.' });
+
+            const movement = await this.stockMovementUseCase.registerStockAdjustment({
+                cmp_uuid,
+                pro_uuid,
+                prov_uuid,
+                war_uuid,
+                warl_uuid,
+                usr_uuid: usr_uuid ?? null,
+                tsmo_uuid,
+                smo_quantity: Number(smo_quantity),
+                smo_previousstock: Number(smo_previousstock),
+                smo_currentstock: Number(smo_currentstock),
+                smo_reason: smo_reason || ""
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: 'Ajuste de stock registrado exitosamente.',
+                data: movement
+            });
+        } catch (error: any) {
+            console.error('Error en registerAdjustmentCtrl (controller - stock-movement):', error.message);
+            return res.status(400).json({
+                success: false,
+                message: 'No se pudo registrar el ajuste de stock.',
                 error: error.message,
             });
         }

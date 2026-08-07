@@ -1,5 +1,7 @@
 import { Express } from "express";
 import { SequelizeRepository as SequelizeStockMovementRepository } from "../../repository/stock-movement/sequelize-stock-movement.repository";
+import { SequelizeRepository as SequelizeInventoryStockRepository } from "../../repository/inventory-stock/sequelize-inventory-stock.repository";
+import { SequelizeRepository as SequelizeProductVariationRepository } from "../../repository/product-variation/sequelize-product-variation.repository";
 import { StockMovementUseCase } from "../../../application/stock-movement/stock-movement-use-case";
 import { StockMovementController } from "../../controller/stock-movement/stock-movement.controller";
 import SocketAdapter from "../../services/socketAdapter";
@@ -9,11 +11,17 @@ function configureStockMovementRoutes(app: Express, socketAdapter: SocketAdapter
     *   Iniciar repository
     */
     const sequelizeStockMovementRepository = new SequelizeStockMovementRepository();
+    const sequelizeInventoryStockRepository = new SequelizeInventoryStockRepository();
+    const sequelizeProductVariationRepository = new SequelizeProductVariationRepository();
     
     /*
     *   Iniciar casos de uso
     */
-    const stockMovementUseCase = new StockMovementUseCase(sequelizeStockMovementRepository);
+    const stockMovementUseCase = new StockMovementUseCase(
+        sequelizeStockMovementRepository,
+        sequelizeInventoryStockRepository,
+        sequelizeProductVariationRepository
+    );
     
     /*
     *   Iniciar controller
@@ -23,6 +31,7 @@ function configureStockMovementRoutes(app: Express, socketAdapter: SocketAdapter
     app.get(`/${process.env.BASE_URL_API}/stock-movements/:cmp_uuid/:page?/:perPage?`, stockMovementCtrl.getAllCtrl);
     app.get(`/${process.env.BASE_URL_API}/stock-movement/:cmp_uuid/:pro_uuid/:prov_uuid/:smo_uuid`, stockMovementCtrl.getCtrl);
     app.post(`/${process.env.BASE_URL_API}/stock-movement`, stockMovementCtrl.insertCtrl);
+    app.post(`/${process.env.BASE_URL_API}/stock-movement/adjust`, stockMovementCtrl.registerAdjustmentCtrl);
     app.put(`/${process.env.BASE_URL_API}/stock-movement/:cmp_uuid/:pro_uuid/:prov_uuid/:smo_uuid`, stockMovementCtrl.updateCtrl);
     app.delete(`/${process.env.BASE_URL_API}/stock-movement/:cmp_uuid/:pro_uuid/:prov_uuid/:smo_uuid`, stockMovementCtrl.deleteCtrl);
 }

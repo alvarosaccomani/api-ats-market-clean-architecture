@@ -1,16 +1,23 @@
 import { StockMovementRepository } from "../../domain/stock-movement/stock-movement.repository";
 import { StockMovementValue } from "../../domain/stock-movement/stock-movement.value";
 import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter";
+import { InventoryStockRepository } from "../../domain/inventory-stock/inventory-stock.repository";
+import { ProductVariationRepository } from "../../domain/product-variation/product-variation.repository";
+import { InventoryStockValue } from "../../domain/inventory-stock/inventory-stock.value";
+import { sequelize } from "../../infrastructure/db/sequelize";
 
 export class StockMovementUseCase {
     constructor(
-        private readonly stockMovementRepository: StockMovementRepository
+        private readonly stockMovementRepository: StockMovementRepository,
+        private readonly inventoryStockRepository: InventoryStockRepository,
+        private readonly productVariationRepository: ProductVariationRepository
     ) {
         this.getStockMovements = this.getStockMovements.bind(this);
         this.findStockMovementById = this.findStockMovementById.bind(this);
         this.createStockMovement = this.createStockMovement.bind(this);
         this.updateStockMovement = this.updateStockMovement.bind(this);
         this.deleteStockMovement = this.deleteStockMovement.bind(this);
+        this.registerStockAdjustment = this.registerStockAdjustment.bind(this);
     }
 
     public async getStockMovements(cmp_uuid: string) {
@@ -146,6 +153,129 @@ export class StockMovementUseCase {
         } catch (error: any) {
             console.error('Error en deleteStockMovement (use case):', error.message);
             throw error;
+        }
+    }
+
+    public async registerStockAdjustment(data: {
+        cmp_uuid: string;
+        pro_uuid: string;
+        prov_uuid: string;
+        war_uuid: string;
+        warl_uuid: string;
+        usr_uuid: string | null;
+        tsmo_uuid: string;
+        smo_quantity: number;
+        smo_previousstock: number;
+        smo_currentstock: number;
+        smo_reason: string;
+    }) {
+        const transaction = await sequelize.transaction();
+        try {
+            // A) Insertar el movimiento en stock_movements
+            const movementValue = new StockMovementValue({
+                cmp_uuid: data.cmp_uuid,
+                pro_uuid: data.pro_uuid,
+                prov_uuid: data.prov_uuid,
+                usr_uuid: data.usr_uuid || undefined,
+                tsmo_uuid: data.tsmo_uuid,
+                smo_quantity: data.smo_quantity,
+                smo_previousstock: data.smo_previousstock,
+                smo_currentstock: data.smo_currentstock,
+                smo_reason: data.smo_reason
+            });
+            const movementCreated = await this.stockMovementRepository.createStockMovement(movementValue, { transaction });
+            if (!movementCreated) {
+                throw new Error("No se pudo registrar el movimiento de stock.");
+            }
+
+            // B) Crear o actualizar el stock en inventory_stock:
+            const existingStock = await this.inventoryStockRepository.findInventoryStockById(
+                data.cmp_uuid,
+                data.pro_uuid,
+                data.prov_uuid,
+                data.war_uuid,
+                data.warl_uuid
+            );
+
+            if (existingStock) {
+                await this.inventoryStockRepository.updateInventoryStock(
+                    data.cmp_uuid,
+                    data.pro_uuid,
+                    data.prov_uuid,
+                    data.war_uuid,
+                    data.warl_uuid,
+                    {
+                        ist_quanty: data.smo_currentstock,
+                        ist_quantyreserved: existingStock.ist_quantyreserved
+                    },
+                    { transaction }
+                );
+            } else {
+                const newStock = new InventoryStockValue({
+                    cmp_uuid: data.cmp_uuid,
+                    pro_uuid: data.pro_uuid,
+                    prov_uuid: data.prov_uuid,
+                    war_uuid: data.war_uuid,
+                    warl_uuid: data.warl_uuid,
+                    ist_quanty: data.smo_currentstock,
+                    ist_quantyreserved: 0
+                });
+                await this.inventoryStockRepository.createInventoryStock(newStock, { transaction });
+            }
+
+            // C) Actualizar el stock global acumulado en la variación del producto (ProductVariation):
+            const variation = await this.productVariationRepository.findProductVariationById(
+                data.cmp_uuid,
+                data.pro_uuid,
+                data.prov_uuid
+            );
+            if (!variation) {
+                throw new Error(`No se encontró la variación de producto con ID: ${data.prov_uuid}`);
+            }
+
+            const delta = data.smo_currentstock - data.smo_previousstock;
+            const newVariationStock = (variation.prov_stock || 0) + delta;
+
+            await this.productVariationRepository.updateProductVariation(
+                data.cmp_uuid,
+                data.pro_uuid,
+                data.prov_uuid,
+                {
+                    prov_code: variation.prov_code,
+                    prov_sku: variation.prov_sku,
+                    prov_name: variation.prov_name,
+                    prov_description: variation.prov_description,
+                    prov_image: variation.prov_image,
+                    mat_uuid: variation.mat_uuid,
+                    prov_color: variation.prov_color,
+                    prov_size: variation.prov_size,
+                    prov_stock: newVariationStock,
+                    prov_suggestedminimumsellingprice: variation.prov_suggestedminimumsellingprice
+                },
+                { transaction }
+            );
+
+            // D) Hacer commit y retornar el movimiento.
+            await transaction.commit();
+
+            return {
+                cmp_uuid: movementCreated.cmp_uuid,
+                pro_uuid: movementCreated.pro_uuid,
+                prov_uuid: movementCreated.prov_uuid,
+                smo_uuid: movementCreated.smo_uuid,
+                ord_uuid: movementCreated.ord_uuid,
+                usr_uuid: movementCreated.usr_uuid,
+                tsmo_uuid: movementCreated.tsmo_uuid,
+                smo_quantity: movementCreated.smo_quantity,
+                smo_previousstock: movementCreated.smo_previousstock,
+                smo_currentstock: movementCreated.smo_currentstock,
+                smo_reason: movementCreated.smo_reason,
+                smo_createdat: movementCreated.smo_createdat ? TimezoneConverter.toIsoStringInTimezone(movementCreated.smo_createdat, 'America/Buenos_Aires') : undefined,
+                smo_updatedat: movementCreated.smo_updatedat ? TimezoneConverter.toIsoStringInTimezone(movementCreated.smo_updatedat, 'America/Buenos_Aires') : undefined
+            };
+        } catch (err) {
+            await transaction.rollback();
+            throw err;
         }
     }
 }
