@@ -113,10 +113,10 @@ export class SequelizeRepository implements ProductRepository {
             throw error;
         }
     }
-    async createProduct(product: ProductEntity): Promise<ProductEntity | null> {
+    async createProduct(product: ProductEntity, options?: { transaction?: any }): Promise<ProductEntity | null> {
         try {
             let { cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, pro_createdat, pro_updatedat } = product
-            const result = await SequelizeProduct.create({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, pro_createdat, pro_updatedat });
+            const result = await SequelizeProduct.create({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, pro_createdat, pro_updatedat }, { transaction: options?.transaction });
             if(!result) {
                 throw new Error(`No se ha agregado el product`);
             }
@@ -127,7 +127,7 @@ export class SequelizeRepository implements ProductRepository {
             throw error;
         }
     }
-    async updateProduct(cmp_uuid: string, pro_uuid: string, product: ProductUpdateData): Promise<ProductEntity | null> {
+    async updateProduct(cmp_uuid: string, pro_uuid: string, product: ProductUpdateData, options?: { transaction?: any }): Promise<ProductEntity | null> {
         try {
             const [updatedCount, [updatedProduct]] = await SequelizeProduct.update(
                 { 
@@ -141,6 +141,7 @@ export class SequelizeRepository implements ProductRepository {
                 { 
                     where: { cmp_uuid, pro_uuid },
                     returning: true, // necesario en PostgreSQL
+                    transaction: options?.transaction
                 }
             );
             if (updatedCount === 0) {

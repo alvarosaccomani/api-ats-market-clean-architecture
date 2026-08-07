@@ -123,10 +123,10 @@ export class SequelizeRepository implements ProductVariationRepository {
             throw error;
         }
     }
-    async createProductVariation(productVariation: ProductVariationEntity): Promise<ProductVariationEntity | null> {
+    async createProductVariation(productVariation: ProductVariationEntity, options?: { transaction?: any }): Promise<ProductVariationEntity | null> {
         try {
             let { cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat } = productVariation
-            const result = await SequelizeProductVariation.create({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat });
+            const result = await SequelizeProductVariation.create({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat }, { transaction: options?.transaction });
             if(!result) {
                 throw new Error(`No se ha agregado el product`);
             }
@@ -139,7 +139,7 @@ export class SequelizeRepository implements ProductVariationRepository {
             throw error;
         }
     }
-    async updateProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string, productVariation: ProductVariationUpdateData): Promise<ProductVariationEntity | null> {
+    async updateProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string, productVariation: ProductVariationUpdateData, options?: { transaction?: any }): Promise<ProductVariationEntity | null> {
         try {
             const [updatedCount, [updatedProductVariation]] = await SequelizeProductVariation.update(
                 { 
@@ -154,8 +154,9 @@ export class SequelizeRepository implements ProductVariationRepository {
                     prov_suggestedminimumsellingprice: productVariation.prov_suggestedminimumsellingprice
                 },
                 { 
-                    where: { cmp_uuid, pro_uuid },
+                    where: { cmp_uuid, pro_uuid, prov_uuid },
                     returning: true, // necesario en PostgreSQL
+                    transaction: options?.transaction
                 }
             );
             if (updatedCount === 0) {

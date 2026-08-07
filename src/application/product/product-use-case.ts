@@ -4,6 +4,7 @@ import { ProductValue } from "../../domain/product/product.value";
 import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter";
 import { ProductVariationEntity } from "../../domain/product-variation/product-variation.entity";
 import { ProductVariationRepository } from "../../domain/product-variation/product-variation.repository";
+import { sequelize } from "../../infrastructure/db/sequelize";
 
 export class ProductUseCase {
     constructor(
@@ -89,9 +90,10 @@ export class ProductUseCase {
     }
     
     public async createProduct({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations } : { cmp_uuid: string, pro_uuid: string, pro_code: string, pro_name: string, pro_image: string, pro_description: string, itm_uuid: string, cat_uuid: string, productVariations?: ProductVariationEntity[] }) {
+        const transaction = await sequelize.transaction();
         try {
             const productValue = new ProductValue({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations });
-            const productCreated = await this.productRepository.createProduct(productValue);
+            const productCreated = await this.productRepository.createProduct(productValue, { transaction });
             if(!productCreated) {
                 throw new Error(`No se pudo insertar el articulo.`);
             }
@@ -100,13 +102,14 @@ export class ProductUseCase {
                 for (const productVariation of productValue.productVariations) {
                     productVariation.pro_uuid = productCreated.pro_uuid;
                     productVariation.prov_uuid = uuid();
-                    const productVariationCreated = await this.productVariationRepository.createProductVariation(productVariation);
+                    const productVariationCreated = await this.productVariationRepository.createProductVariation(productVariation, { transaction });
                     if (!productVariationCreated) {
                         throw new Error(`No se pudo insertar la variacion del articulo.`);
                     }
                     productVariationsCreated.push(productVariationCreated);
                 }
             }
+            await transaction.commit();
             return {
                 cmp_uuid: productCreated.cmp_uuid,
                 pro_uuid: productCreated.pro_uuid,
@@ -120,14 +123,16 @@ export class ProductUseCase {
                 pro_updatedat: TimezoneConverter.toIsoStringInTimezone(productCreated.pro_updatedat, 'America/Buenos_Aires')
             };
         } catch (error: any) {
+            await transaction.rollback();
             console.error('Error en createProduct (use case):', error.message);
             throw error; // Propagar el error hacia el controlador
         }
     }
 
     public async updateProduct(cmp_uuid: string, pro_uuid: string, { pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations } : { pro_code: string, pro_name: string, pro_image: string, pro_description: string, itm_uuid: string, cat_uuid: string, productVariations?: ProductVariationEntity[] }) {
+        const transaction = await sequelize.transaction();
         try {
-            const productUpdated = await this.productRepository.updateProduct(cmp_uuid, pro_uuid, { pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations });
+            const productUpdated = await this.productRepository.updateProduct(cmp_uuid, pro_uuid, { pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, productVariations }, { transaction });
             if(!productUpdated) {
                 throw new Error(`No se pudo actualizar el articulo.`);
             }
@@ -137,13 +142,13 @@ export class ProductUseCase {
                     if (!productVariation.prov_uuid) {
                         productVariation.pro_uuid = productUpdated.pro_uuid;
                         productVariation.prov_uuid = uuid();
-                        const productVariationCreated = await this.productVariationRepository.createProductVariation(productVariation);
+                        const productVariationCreated = await this.productVariationRepository.createProductVariation(productVariation, { transaction });
                         if (!productVariationCreated) {
                             throw new Error(`No se pudo insertar la variacion del articulo.`);
                         }
                         productVariationsCreated.push(productVariationCreated);
                     } else {
-                        const productVariationUpdated = await this.productVariationRepository.updateProductVariation(productVariation.cmp_uuid, productVariation.pro_uuid, productVariation.prov_uuid, productVariation);
+                        const productVariationUpdated = await this.productVariationRepository.updateProductVariation(productVariation.cmp_uuid, productVariation.pro_uuid, productVariation.prov_uuid, productVariation, { transaction });
                         if (!productVariationUpdated) {
                             throw new Error(`No se pudo actualizar la variacion del articulo.`);
                         }
@@ -151,6 +156,7 @@ export class ProductUseCase {
                     }                    
                 }
             }
+            await transaction.commit();
             return {
                 cmp_uuid: productUpdated.cmp_uuid,
                 pro_uuid: productUpdated.pro_uuid,
@@ -164,6 +170,7 @@ export class ProductUseCase {
                 pro_updatedat: TimezoneConverter.toIsoStringInTimezone(productUpdated.pro_updatedat, 'America/Buenos_Aires')
             };
         } catch (error: any) {
+            await transaction.rollback();
             console.error('Error en updateProduct (use case):', error.message);
             throw error; // Propagar el error hacia el controlador
         }
