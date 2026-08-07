@@ -53,7 +53,7 @@ export class SequelizeRepository implements InventoryStockRepository {
         }
     }
 
-    async createInventoryStock(inventoryStock: InventoryStockEntity): Promise<InventoryStockEntity | null> {
+    async createInventoryStock(inventoryStock: InventoryStockEntity, options?: { transaction?: any }): Promise<InventoryStockEntity | null> {
         try {
             const { 
                 cmp_uuid, 
@@ -77,7 +77,7 @@ export class SequelizeRepository implements InventoryStockRepository {
                 ist_quantyreserved, 
                 ist_createdat, 
                 ist_updatedat 
-            });
+            }, { transaction: options?.transaction });
             
             if (!result) {
                 throw new Error(`No se pudo agregar el stock de inventario`);
@@ -115,7 +115,7 @@ export class SequelizeRepository implements InventoryStockRepository {
         }
     }
 
-    async updateInventoryStock(cmp_uuid: string, pro_uuid: string, prov_uuid: string, war_uuid: string, warl_uuid: string, inventoryStock: InventoryStockUpdateData): Promise<InventoryStockEntity | null> {
+    async updateInventoryStock(cmp_uuid: string, pro_uuid: string, prov_uuid: string, war_uuid: string, warl_uuid: string, inventoryStock: InventoryStockUpdateData, options?: { transaction?: any }): Promise<InventoryStockEntity | null> {
         try {
             const [updatedCount, [updatedStock]] = await SequelizeInventoryStock.update(
                 {
@@ -125,6 +125,7 @@ export class SequelizeRepository implements InventoryStockRepository {
                 {
                     where: { cmp_uuid, pro_uuid, prov_uuid, war_uuid, warl_uuid },
                     returning: true,
+                    transaction: options?.transaction,
                 }
             );
             
