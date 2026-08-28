@@ -2,6 +2,7 @@ import { GlobalItemEntity, GlobalItemUpdateData } from "../../../domain/global-i
 import { GlobalItemRepository } from "../../../domain/global-item/global-item.repository";
 import { SequelizeGlobalItem } from "../../model/global-item/global-item.model";
 import { Op } from "sequelize";
+import { ImageOptimizer } from "../../utils/ImageOptimizer";
 
 export class SequelizeRepository implements GlobalItemRepository {
     async getGlobalItems(): Promise<GlobalItemEntity[] | null> {
@@ -35,6 +36,9 @@ export class SequelizeRepository implements GlobalItemRepository {
     async createGlobalItem(globalItem: GlobalItemEntity): Promise<GlobalItemEntity | null> {
         try {
             let { gitm_uuid, gitm_name, gitm_description, gitm_image, gitm_createdat, gitm_updatedat } = globalItem
+            if (gitm_image) {
+                gitm_image = await ImageOptimizer.optimizeBase64(gitm_image);
+            }
             const result = await SequelizeGlobalItem.create({ gitm_uuid, gitm_name, gitm_description, gitm_image, gitm_createdat, gitm_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado el item`);
@@ -48,10 +52,15 @@ export class SequelizeRepository implements GlobalItemRepository {
     }
     async updateGlobalItem(gitm_uuid: string, globalItem: GlobalItemUpdateData): Promise<GlobalItemEntity | null> {
         try {
+            let gitm_image = globalItem.gitm_image;
+            if (gitm_image) {
+                gitm_image = await ImageOptimizer.optimizeBase64(gitm_image);
+            }
             const [updatedCount, [updatedGlobalItem]] = await SequelizeGlobalItem.update(
                 { 
                     gitm_name: globalItem.gitm_name,
-                    gitm_description: globalItem.gitm_description
+                    gitm_description: globalItem.gitm_description,
+                    gitm_image: gitm_image
                 },
                 { 
                     where: { gitm_uuid },
