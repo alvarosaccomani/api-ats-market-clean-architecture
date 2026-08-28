@@ -4,6 +4,7 @@ import { SequelizeProductVariation } from "../../model/product-variation/product
 import { SequelizeProduct } from "../../model/product/product.model";
 import { Op } from "sequelize";
 import { sequelize } from "../../db/sequelize";
+import { ImageOptimizer } from "../../utils/ImageOptimizer";
 
 export class SequelizeRepository implements ProductRepository {
     async getProducts(
@@ -116,6 +117,9 @@ export class SequelizeRepository implements ProductRepository {
     async createProduct(product: ProductEntity, options?: { transaction?: any }): Promise<ProductEntity | null> {
         try {
             let { cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, pro_createdat, pro_updatedat } = product
+            if (pro_image) {
+                pro_image = await ImageOptimizer.optimizeBase64(pro_image);
+            }
             const result = await SequelizeProduct.create({ cmp_uuid, pro_uuid, pro_code, pro_name, pro_image, pro_description, itm_uuid, cat_uuid, pro_createdat, pro_updatedat }, { transaction: options?.transaction });
             if(!result) {
                 throw new Error(`No se ha agregado el product`);
@@ -129,11 +133,15 @@ export class SequelizeRepository implements ProductRepository {
     }
     async updateProduct(cmp_uuid: string, pro_uuid: string, product: ProductUpdateData, options?: { transaction?: any }): Promise<ProductEntity | null> {
         try {
+            let pro_image = product.pro_image;
+            if (pro_image) {
+                pro_image = await ImageOptimizer.optimizeBase64(pro_image);
+            }
             const [updatedCount, [updatedProduct]] = await SequelizeProduct.update(
                 { 
                     pro_code: product.pro_code, 
                     pro_name: product.pro_name, 
-                    pro_image: product.pro_image, 
+                    pro_image: pro_image, 
                     pro_description: product.pro_description,
                     itm_uuid: product.itm_uuid,
                     cat_uuid: product.cat_uuid
