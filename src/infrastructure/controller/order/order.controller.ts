@@ -219,7 +219,7 @@ export class OrderController {
                 return res.status(400).json({ success: false, message: 'Falta ords_uuid en el cuerpo de la petición.' });
             }
 
-            const usr_uuid = req.body.usr_uuid;
+            const usr_uuid = req.body.usr_uuid || (req as any).user?.sub;
             const odh_comment = req.body.ordh_comment || req.body.odh_comment;
 
             const order = await this.orderUseCase.changeOrderStatus(cmp_uuid, ord_uuid, ords_uuid, usr_uuid, odh_comment);
