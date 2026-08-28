@@ -2,6 +2,7 @@ import { GlobalCategoryEntity, GlobalCategoryUpdateData } from "../../../domain/
 import { GlobalCategoryRepository } from "../../../domain/global-category/global-category.repository";
 import { SequelizeGlobalCategory } from "../../model/global-category/global-category.model";
 import { Op } from "sequelize";
+import { ImageOptimizer } from "../../utils/ImageOptimizer";
 
 export class SequelizeRepository implements GlobalCategoryRepository {
     async getGlobalCategories(): Promise<GlobalCategoryEntity[] | null> {
@@ -36,6 +37,9 @@ export class SequelizeRepository implements GlobalCategoryRepository {
     async createGlobalCategory(globalCategory: GlobalCategoryEntity): Promise<GlobalCategoryEntity | null> {
         try {
             let { gitm_uuid, gcat_uuid, gcat_name, gcat_description, gcat_image, gcat_createdat, gcat_updatedat } = globalCategory
+            if (gcat_image) {
+                gcat_image = await ImageOptimizer.optimizeBase64(gcat_image);
+            }
             const result = await SequelizeGlobalCategory.create({ gitm_uuid, gcat_uuid, gcat_name, gcat_description, gcat_image, gcat_createdat, gcat_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado la categoria`);
@@ -49,10 +53,15 @@ export class SequelizeRepository implements GlobalCategoryRepository {
     }
     async updateGlobalCategory(gitm_uuid: string, gcat_uuid: string, globalCategory: GlobalCategoryUpdateData): Promise<GlobalCategoryEntity | null> {
         try {
+            let gcat_image = globalCategory.gcat_image;
+            if (gcat_image) {
+                gcat_image = await ImageOptimizer.optimizeBase64(gcat_image);
+            }
             const [updatedCount, [updatedGlobalCategory]] = await SequelizeGlobalCategory.update(
                 { 
                     gcat_name: globalCategory.gcat_name,
-                    gcat_description: globalCategory.gcat_description
+                    gcat_description: globalCategory.gcat_description,
+                    gcat_image: gcat_image
                 },
                 { 
                     where: { gitm_uuid, gcat_uuid },
