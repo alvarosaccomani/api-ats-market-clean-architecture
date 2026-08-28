@@ -8,6 +8,7 @@ import { SequelizeCompany } from "../../model/company/company.model";
 import { SequelizeMaterial } from "../../model/material/material.model";
 import { SequelizeGlobalMaterial } from "../../model/global-material/global-material.model";
 import { Op } from "sequelize";
+import { ImageOptimizer } from "../../utils/ImageOptimizer";
 
 export class SequelizeRepository implements ProductVariationRepository {
     async getProductVariations(cmp_uuid: string, pro_uuid: string): Promise<ProductVariationEntity[] | null> {
@@ -126,6 +127,9 @@ export class SequelizeRepository implements ProductVariationRepository {
     async createProductVariation(productVariation: ProductVariationEntity, options?: { transaction?: any }): Promise<ProductVariationEntity | null> {
         try {
             let { cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat } = productVariation
+            if (prov_image) {
+                prov_image = await ImageOptimizer.optimizeBase64(prov_image);
+            }
             const result = await SequelizeProductVariation.create({ cmp_uuid, pro_uuid, prov_uuid, prov_code, prov_sku, prov_name, prov_description, prov_image, mat_uuid, prov_color, prov_size, prov_stock, prov_suggestedminimumsellingprice, prov_createdat, prov_updatedat }, { transaction: options?.transaction });
             if(!result) {
                 throw new Error(`No se ha agregado el product`);
@@ -141,13 +145,17 @@ export class SequelizeRepository implements ProductVariationRepository {
     }
     async updateProductVariation(cmp_uuid: string, pro_uuid: string, prov_uuid: string, productVariation: ProductVariationUpdateData, options?: { transaction?: any }): Promise<ProductVariationEntity | null> {
         try {
+            let prov_image = productVariation.prov_image;
+            if (prov_image) {
+                prov_image = await ImageOptimizer.optimizeBase64(prov_image);
+            }
             const [updatedCount, [updatedProductVariation]] = await SequelizeProductVariation.update(
                 { 
                     prov_code: productVariation.prov_code, 
                     prov_sku: productVariation.prov_sku, 
                     prov_name: productVariation.prov_name, 
                     prov_description: productVariation.prov_description,
-                    prov_image: productVariation.prov_image,
+                    prov_image: prov_image,
                     prov_color: productVariation.prov_color,
                     prov_size: productVariation.prov_size,
                     prov_stock: productVariation.prov_stock,
