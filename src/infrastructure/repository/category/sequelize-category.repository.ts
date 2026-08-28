@@ -1,22 +1,50 @@
 import { CategoryEntity, CategoryUpdateData } from "../../../domain/category/category.entity";
 import { CategoryRepository } from "../../../domain/category/category.repository";
 import { SequelizeCategory } from "../../model/category/category.model";
+import { SequelizeGlobalCategory } from "../../model/global-category/global-category.model";
 import { Op } from "sequelize";
 
 export class SequelizeRepository implements CategoryRepository {
     async getCategories(cmp_uuid: string, itm_uuid: string): Promise<CategoryEntity[] | null> {
         try {
+            let whereClause: any = {
+                cmp_uuid: cmp_uuid ?? null
+            };
+            if (itm_uuid && itm_uuid !== 'null' && itm_uuid !== 'undefined') {
+                whereClause.itm_uuid = itm_uuid;
+            }
             let config = {
-                where: {
-                    cmp_uuid: cmp_uuid ?? null,
-                    itm_uuid: itm_uuid ?? null
-                }
+                where: whereClause
             }
             const categories = await SequelizeCategory.findAll(config);
             if(!categories) {
                 throw new Error(`No hay categorias`)
             };
-            return categories;
+
+            const gcatUuids = [...new Set(categories.map(c => c.gcat_uuid).filter(Boolean))];
+            let globalCategoryMap = new Map();
+            if (gcatUuids.length > 0) {
+                const globalCategories = await SequelizeGlobalCategory.findAll({
+                    where: {
+                        gcat_uuid: { [Op.in]: gcatUuids }
+                    }
+                });
+                globalCategoryMap = new Map(globalCategories.map(gc => [gc.gcat_uuid, gc.get({ plain: true })]));
+            }
+
+            const results: CategoryEntity[] = [];
+            for (const category of categories) {
+                const plainCategory = category.get({ plain: true });
+                const globalCategory = globalCategoryMap.get(category.gcat_uuid);
+                if (globalCategory) {
+                    (plainCategory as any).gcat_image = globalCategory.gcat_image;
+                    (plainCategory as any).gcat_name = globalCategory.gcat_name;
+                    (plainCategory as any).gcat_description = globalCategory.gcat_description;
+                }
+                results.push(plainCategory);
+            }
+
+            return results;
         } catch (error: any) {
             console.error('Error en getCategories:', error.message);
             throw error;

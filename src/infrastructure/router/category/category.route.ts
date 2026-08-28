@@ -24,7 +24,7 @@ function configureCategoryRoutes(app: Express, socketAdapter: SocketAdapter) {
     
     const categoryCtrl = new CategoryController(categoryUseCase, socketAdapter);
     
-    app.get(`/${process.env.BASE_URL_API}/categories/:cmp_uuid/:itm_uuid/:filter?/:page?/:perPage?`, categoryCtrl.getAllCtrl);
+    app.get(`/${process.env.BASE_URL_API}/categories/:cmp_uuid/:itm_uuid?/:filter?/:page?/:perPage?`, categoryCtrl.getAllCtrl);
     app.get(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, categoryCtrl.getCtrl);
     app.post(`/${process.env.BASE_URL_API}/category`, authMiddleware, categoryCtrl.insertCtrl);
     app.put(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, authMiddleware, categoryCtrl.updateCtrl);

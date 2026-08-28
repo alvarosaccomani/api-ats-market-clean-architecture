@@ -29,6 +29,7 @@ export class CategoryUseCase {
                 gcat_uuid: category.gcat_uuid,
                 cat_name: category.cat_name,
                 cat_description: category.cat_description,
+                gcat_image: (category as any).gcat_image || '',
                 cat_createdat: TimezoneConverter.toIsoStringInTimezone(category.cat_createdat, 'America/Buenos_Aires'),
                 cat_updatedat: TimezoneConverter.toIsoStringInTimezone(category.cat_updatedat, 'America/Buenos_Aires')
             }));
@@ -52,6 +53,7 @@ export class CategoryUseCase {
                 gcat_uuid: category.gcat_uuid,
                 cat_name: category.cat_name,
                 cat_description: category.cat_description,
+                gcat_image: (category as any).gcat_image || '',
                 cat_createdat: TimezoneConverter.toIsoStringInTimezone(category.cat_createdat, 'America/Buenos_Aires'),
                 cat_updatedat: TimezoneConverter.toIsoStringInTimezone(category.cat_updatedat, 'America/Buenos_Aires')
             };
