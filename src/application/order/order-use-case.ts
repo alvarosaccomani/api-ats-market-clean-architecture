@@ -7,6 +7,11 @@ import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter"
 import { OrderHistoryRepository } from "../../domain/order-history/order-history.repository";
 import { OrderHistoryValue } from "../../domain/order-history/order-history.value";
 import { sequelize } from "../../infrastructure/db/sequelize";
+import { SequelizeInventoryStock } from "../../infrastructure/model/inventory-stock/inventory-stock.model";
+import { SequelizeStockMovement } from "../../infrastructure/model/stock-movement/stock-movement.model";
+import { SequelizeProductVariation } from "../../infrastructure/model/product-variation/product-variation.model";
+import { SequelizeWarehouseLocation } from "../../infrastructure/model/warehouse-location/warehouse-location.model";
+import { SequelizeUser } from "../../infrastructure/model/user/user.model";
 
 export class OrderUseCase {
     constructor(
@@ -318,9 +323,35 @@ export class OrderUseCase {
     public async changeOrderStatus(cmp_uuid: string, ord_uuid: string, ords_uuid: string, usr_uuid?: string, odh_comment?: string) {
         const transaction = await sequelize.transaction();
         try {
+            // Obtener el estado actual de la orden y sus detalles
+            const order = await this.orderRepository.findOrderById(cmp_uuid, ord_uuid);
+            if (!order) {
+                throw new Error(`No se encontró la orden con Id: ${ord_uuid}`);
+            }
+
+            const oldStatus = order.ords_uuid;
+
             const orderUpdated = await this.orderRepository.changeOrderStatus(cmp_uuid, ord_uuid, ords_uuid, { transaction });
             if(!orderUpdated) {
                 throw new Error(`No se pudo cambiar el estado de la orden.`);
+            }
+
+            // Determinar un usr_uuid válido para cumplir con las restricciones NOT NULL de la base de datos
+            let finalUsrUuid = usr_uuid || orderUpdated.usr_uuid;
+            let validUser = null;
+            if (finalUsrUuid) {
+                validUser = await SequelizeUser.findOne({ where: { usr_uuid: finalUsrUuid }, transaction });
+            }
+
+            if (!validUser) {
+                const defaultUser = await SequelizeUser.findOne({ transaction });
+                if (defaultUser) {
+                    finalUsrUuid = defaultUser.usr_uuid;
+                } else {
+                    throw new Error("No se encontró ningún usuario registrado en el sistema para asociar el historial y movimiento de stock.");
+                }
+            } else {
+                finalUsrUuid = validUser.usr_uuid;
             }
 
             // Registrar historial de la orden
@@ -328,10 +359,248 @@ export class OrderUseCase {
                 cmp_uuid: orderUpdated.cmp_uuid,
                 ord_uuid: orderUpdated.ord_uuid,
                 ords_uuid: orderUpdated.ords_uuid,
-                usr_uuid: usr_uuid || orderUpdated.usr_uuid || "",
+                usr_uuid: finalUsrUuid,
                 ordh_comment: odh_comment || `Estado de orden cambiado a: ${ords_uuid}`
             });
             await this.orderHistoryRepository.createOrderHistory(historyValue, { transaction });
+
+            // LOGICA DE STOCK WMS Y MOVIMIENTOS
+            // Caso A: Descontar stock al pasar a SHIPPED o DELIVERED
+            const isTargetShippedOrDelivered = (ords_uuid === 'SHIPPED' || ords_uuid === 'DELIVERED');
+            const wasShippedOrDelivered = (oldStatus === 'SHIPPED' || oldStatus === 'DELIVERED');
+
+            if (isTargetShippedOrDelivered && !wasShippedOrDelivered) {
+                // Descontar existencias
+                if (Array.isArray(order.orderDetails)) {
+                    for (const item of order.orderDetails) {
+                        const neededQuantity = item.ordd_quantity;
+                        if (neededQuantity <= 0) continue;
+                        if (!item.prov_uuid) continue;
+
+                        // Buscar ubicaciones de stock de esta variante ordenadas de mayor a menor cantidad
+                        const stockEntries = await SequelizeInventoryStock.findAll({
+                            where: { cmp_uuid, prov_uuid: item.prov_uuid },
+                            order: [['ist_quanty', 'DESC']],
+                            transaction
+                        });
+
+                        let remainingToDeduct = neededQuantity;
+
+                        for (const entry of stockEntries) {
+                            if (remainingToDeduct <= 0) break;
+
+                            const currentQty = entry.ist_quanty || 0;
+                            let deductFromThisBin = 0;
+
+                            if (currentQty >= remainingToDeduct) {
+                                deductFromThisBin = remainingToDeduct;
+                            } else {
+                                deductFromThisBin = currentQty > 0 ? currentQty : 0;
+                            }
+
+                            // Si es la última ubicación y no se ha cubierto el total, forzar el descuento total en esta ubicación (para ir a negativo si se permite backorders)
+                            const isLastEntry = (entry === stockEntries[stockEntries.length - 1]);
+                            if (isLastEntry && deductFromThisBin < remainingToDeduct) {
+                                deductFromThisBin = remainingToDeduct;
+                            }
+
+                            if (deductFromThisBin > 0) {
+                                const newQty = currentQty - deductFromThisBin;
+                                
+                                await SequelizeInventoryStock.update({
+                                    ist_quanty: newQty
+                                }, {
+                                    where: {
+                                        cmp_uuid,
+                                        pro_uuid: entry.pro_uuid,
+                                        prov_uuid: entry.prov_uuid,
+                                        war_uuid: entry.war_uuid,
+                                        warl_uuid: entry.warl_uuid
+                                    },
+                                    transaction
+                                });
+
+                                await SequelizeStockMovement.create({
+                                    cmp_uuid,
+                                    pro_uuid: entry.pro_uuid,
+                                    prov_uuid: entry.prov_uuid,
+                                    smo_uuid: uuid(),
+                                    ord_uuid: ord_uuid,
+                                    usr_uuid: finalUsrUuid,
+                                    tsmo_uuid: 'OUT',
+                                    smo_quantity: -deductFromThisBin,
+                                    smo_previousstock: currentQty,
+                                    smo_currentstock: newQty,
+                                    smo_reason: `Despacho de Pedido #${order.ord_ordernumber}`,
+                                    smo_createdat: new Date(),
+                                    smo_updatedat: new Date()
+                                }, { transaction });
+
+                                remainingToDeduct -= deductFromThisBin;
+                            }
+                        }
+
+                        // Si no había registros de stock previos en WMS para esta variante, crear uno por defecto en la primera ubicación activa
+                        if (remainingToDeduct > 0 && stockEntries.length === 0) {
+                            const defaultLocation = await SequelizeWarehouseLocation.findOne({
+                                where: { cmp_uuid, warl_active: true },
+                                transaction
+                            });
+
+                            if (defaultLocation) {
+                                const newQty = -remainingToDeduct;
+                                await SequelizeInventoryStock.create({
+                                    cmp_uuid,
+                                    pro_uuid: item.pro_uuid || "",
+                                    prov_uuid: item.prov_uuid,
+                                    war_uuid: defaultLocation.war_uuid,
+                                    warl_uuid: defaultLocation.warl_uuid,
+                                    ist_quanty: newQty,
+                                    ist_quantyreserved: 0,
+                                    ist_createdat: new Date(),
+                                    ist_updatedat: new Date()
+                                }, { transaction });
+
+                                await SequelizeStockMovement.create({
+                                    cmp_uuid,
+                                    pro_uuid: item.pro_uuid || "",
+                                    prov_uuid: item.prov_uuid,
+                                    smo_uuid: uuid(),
+                                    ord_uuid: ord_uuid,
+                                    usr_uuid: finalUsrUuid,
+                                    tsmo_uuid: 'OUT',
+                                    smo_quantity: -remainingToDeduct,
+                                    smo_previousstock: 0,
+                                    smo_currentstock: newQty,
+                                    smo_reason: `Despacho de Pedido #${order.ord_ordernumber} (Sin stock previo)`,
+                                    smo_createdat: new Date(),
+                                    smo_updatedat: new Date()
+                                }, { transaction });
+                            }
+                        }
+
+                        // Actualizar stock global de la variante
+                        const variation = await SequelizeProductVariation.findOne({
+                            where: { cmp_uuid, prov_uuid: item.prov_uuid },
+                            transaction
+                        });
+                        if (variation) {
+                            const newVariationStock = (variation.prov_stock || 0) - neededQuantity;
+                            await SequelizeProductVariation.update({
+                                prov_stock: newVariationStock
+                            }, {
+                                where: { cmp_uuid, prov_uuid: item.prov_uuid },
+                                transaction
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Caso B: Devolver stock si se cancela una orden ya despachada/entregada
+            const isTargetCancelled = (ords_uuid === 'CANCELLED');
+            if (isTargetCancelled && wasShippedOrDelivered) {
+                if (Array.isArray(order.orderDetails)) {
+                    for (const item of order.orderDetails) {
+                        const restoreQuantity = item.ordd_quantity;
+                        if (restoreQuantity <= 0) continue;
+                        if (!item.prov_uuid) continue;
+
+                        // Buscar si existe alguna ubicación de stock de esta variante en WMS
+                        const stockEntries = await SequelizeInventoryStock.findAll({
+                            where: { cmp_uuid, prov_uuid: item.prov_uuid },
+                            transaction
+                        });
+
+                        if (stockEntries.length > 0) {
+                            // Devolver a la primera ubicación disponible
+                            const entry = stockEntries[0];
+                            const currentQty = entry.ist_quanty || 0;
+                            const newQty = currentQty + restoreQuantity;
+
+                            await SequelizeInventoryStock.update({
+                                ist_quanty: newQty
+                            }, {
+                                where: {
+                                    cmp_uuid,
+                                    pro_uuid: entry.pro_uuid,
+                                    prov_uuid: entry.prov_uuid,
+                                    war_uuid: entry.war_uuid,
+                                    warl_uuid: entry.warl_uuid
+                                },
+                                transaction
+                            });
+
+                            await SequelizeStockMovement.create({
+                                cmp_uuid,
+                                pro_uuid: entry.pro_uuid,
+                                prov_uuid: entry.prov_uuid,
+                                smo_uuid: uuid(),
+                                ord_uuid: ord_uuid,
+                                usr_uuid: finalUsrUuid,
+                                tsmo_uuid: 'IN',
+                                smo_quantity: restoreQuantity,
+                                smo_previousstock: currentQty,
+                                smo_currentstock: newQty,
+                                smo_reason: `Cancelación de Pedido #${order.ord_ordernumber}`,
+                                smo_createdat: new Date(),
+                                smo_updatedat: new Date()
+                            }, { transaction });
+                        } else {
+                            // Si no tiene ubicación de stock, buscar una ubicación de depósito por defecto activa
+                            const defaultLocation = await SequelizeWarehouseLocation.findOne({
+                                where: { cmp_uuid, warl_active: true },
+                                transaction
+                            });
+
+                            if (defaultLocation) {
+                                await SequelizeInventoryStock.create({
+                                    cmp_uuid,
+                                    pro_uuid: item.pro_uuid || "",
+                                    prov_uuid: item.prov_uuid,
+                                    war_uuid: defaultLocation.war_uuid,
+                                    warl_uuid: defaultLocation.warl_uuid,
+                                    ist_quanty: restoreQuantity,
+                                    ist_quantyreserved: 0,
+                                    ist_createdat: new Date(),
+                                    ist_updatedat: new Date()
+                                }, { transaction });
+
+                                await SequelizeStockMovement.create({
+                                    cmp_uuid,
+                                    pro_uuid: item.pro_uuid || "",
+                                    prov_uuid: item.prov_uuid,
+                                    smo_uuid: uuid(),
+                                    ord_uuid: ord_uuid,
+                                    usr_uuid: finalUsrUuid,
+                                    tsmo_uuid: 'IN',
+                                    smo_quantity: restoreQuantity,
+                                    smo_previousstock: 0,
+                                    smo_currentstock: restoreQuantity,
+                                    smo_reason: `Cancelación de Pedido #${order.ord_ordernumber} (Inicialización)`,
+                                    smo_createdat: new Date(),
+                                    smo_updatedat: new Date()
+                                }, { transaction });
+                            }
+                        }
+
+                        // Devolver al stock global de la variante
+                        const variation = await SequelizeProductVariation.findOne({
+                            where: { cmp_uuid, prov_uuid: item.prov_uuid },
+                            transaction
+                        });
+                        if (variation) {
+                            const newVariationStock = (variation.prov_stock || 0) + restoreQuantity;
+                            await SequelizeProductVariation.update({
+                                prov_stock: newVariationStock
+                            }, {
+                                where: { cmp_uuid, prov_uuid: item.prov_uuid },
+                                transaction
+                            });
+                        }
+                    }
+                }
+            }
 
             await transaction.commit();
 
