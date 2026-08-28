@@ -3,6 +3,7 @@ import { CompanyRepository } from "../../../domain/company/company.repository";
 import { SequelizeCompany } from "../../model/company/company.model";
 import { SequelizeCompanySetting } from "../../model/company-setting/company-setting.model";
 import { Op } from "sequelize";
+import { ImageOptimizer } from "../../utils/ImageOptimizer";
 
 export class SequelizeRepository implements CompanyRepository {
     async getCompanies(): Promise<CompanyEntity[] | null> {
@@ -36,6 +37,12 @@ export class SequelizeRepository implements CompanyRepository {
     async createCompany(company: CompanyEntity): Promise<CompanyEntity | null> {
         try {
             let { cmp_uuid, cmp_name, cmp_address, cmp_lat, cmp_lng, cmp_phone, cmp_email, cmp_slug, cmp_logo, cmp_banner, cmp_description, cmp_currency, cmp_whatsapp, cmp_instagram, cmp_facebook, cmp_allowbackorders, cmp_primarycolor, cmp_isfeatured, cmp_status, cmp_createdat, cmp_updatedat } = company
+            if (cmp_logo) {
+                cmp_logo = await ImageOptimizer.optimizeBase64(cmp_logo);
+            }
+            if (cmp_banner) {
+                cmp_banner = await ImageOptimizer.optimizeBase64(cmp_banner);
+            }
             const result = await SequelizeCompany.create({ cmp_uuid, cmp_name, cmp_address, cmp_lat, cmp_lng, cmp_phone, cmp_email, cmp_slug, cmp_logo, cmp_banner, cmp_description, cmp_currency, cmp_whatsapp, cmp_instagram, cmp_facebook, cmp_allowbackorders, cmp_primarycolor, cmp_isfeatured, cmp_status, cmp_createdat, cmp_updatedat });
             if(!result) {
                 throw new Error(`No se ha agregado la empresa`);
@@ -49,6 +56,14 @@ export class SequelizeRepository implements CompanyRepository {
     }
     async updateCompany(cmp_uuid: string, company: CompanyUpdateData): Promise<CompanyEntity | null> {
         try {
+            let cmp_logo = company.cmp_logo;
+            let cmp_banner = company.cmp_banner;
+            if (cmp_logo) {
+                cmp_logo = await ImageOptimizer.optimizeBase64(cmp_logo);
+            }
+            if (cmp_banner) {
+                cmp_banner = await ImageOptimizer.optimizeBase64(cmp_banner);
+            }
             const [updatedCount, [updatedCompany]] = await SequelizeCompany.update(
                 { 
                     cmp_name: company.cmp_name,
@@ -58,8 +73,8 @@ export class SequelizeRepository implements CompanyRepository {
                     cmp_phone: company.cmp_phone,
                     cmp_email: company.cmp_email,
                     cmp_slug: company.cmp_slug,
-                    cmp_logo: company.cmp_logo,
-                    cmp_banner: company.cmp_banner,
+                    cmp_logo: cmp_logo,
+                    cmp_banner: cmp_banner,
                     cmp_description: company.cmp_description,
                     cmp_currency: company.cmp_currency,
                     cmp_whatsapp: company.cmp_whatsapp,
