@@ -20,9 +20,9 @@ export class ProductVariationUseCase {
         this.searchProductVariations = this.searchProductVariations.bind(this);
     }
 
-    public async getProductVariations(cmp_uuid: string, pro_uuid: string) {
+    public async getProductVariations(cmp_uuid: string, pro_uuid: string, prov_isvisible?: boolean) {
         try {
-            const productVariation = await this.productVariationRepository.getProductVariations(cmp_uuid, pro_uuid);
+            const productVariation = await this.productVariationRepository.getProductVariations(cmp_uuid, pro_uuid, prov_isvisible);
             if(!productVariation) {
                 throw new Error('No hay variaciones de articulo.'); 
             }
@@ -41,6 +41,7 @@ export class ProductVariationUseCase {
                 prov_suggestedminimumsellingprice: productVariation.prov_suggestedminimumsellingprice,
                 prov_averagerating: productVariation.prov_averagerating ?? 0,
                 prov_reviewscount: productVariation.prov_reviewscount ?? 0,
+                prov_isvisible: productVariation.prov_isvisible,
                 mat_uuid: productVariation.mat_uuid,
                 gmat_uuid: productVariation.gmat_uuid,
                 gmat_name: productVariation.gmat_name,
@@ -230,9 +231,9 @@ export class ProductVariationUseCase {
         }
     }
 
-    public async searchProductVariations(query: string, cmp_uuid?: string) {
+    public async searchProductVariations(query: string, cmp_uuid?: string, prov_isvisible?: boolean) {
         try {
-            const variations = await this.productVariationRepository.searchProductVariations(query, cmp_uuid);
+            const variations = await this.productVariationRepository.searchProductVariations(query, cmp_uuid, prov_isvisible);
             if (!variations) {
                 return [];
             }
@@ -251,6 +252,7 @@ export class ProductVariationUseCase {
                 prov_suggestedminimumsellingprice: variation.prov_suggestedminimumsellingprice,
                 prov_averagerating: variation.prov_averagerating ?? 0,
                 prov_reviewscount: variation.prov_reviewscount ?? 0,
+                prov_isvisible: variation.prov_isvisible,
                 cat_uuid: variation.cat_uuid,
                 itm_uuid: variation.itm_uuid,
                 pro_name: variation.pro_name,

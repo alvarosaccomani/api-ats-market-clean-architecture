@@ -11,23 +11,19 @@ import { Op } from "sequelize";
 import { ImageOptimizer } from "../../utils/ImageOptimizer";
 
 export class SequelizeRepository implements ProductVariationRepository {
-    async getProductVariations(cmp_uuid: string, pro_uuid: string): Promise<ProductVariationEntity[] | null> {
+    async getProductVariations(cmp_uuid: string, pro_uuid: string, prov_isvisible?: boolean): Promise<ProductVariationEntity[] | null> {
         try {
-            let config = {}
-            if(!pro_uuid) {
-                config = {
-                    where: {
-                        cmp_uuid: cmp_uuid ?? null
-                    }
-                }
-            } else {
-                config = {
-                    where: {
-                        cmp_uuid: cmp_uuid ?? null,
-                        pro_uuid: pro_uuid ?? null
-                    }
-                }
+            const whereCondition: any = {};
+            if (cmp_uuid && cmp_uuid.toLowerCase() !== 'null' && cmp_uuid.toLowerCase() !== 'undefined') {
+                whereCondition.cmp_uuid = cmp_uuid;
             }
+            if (pro_uuid && pro_uuid.toLowerCase() !== 'null' && pro_uuid.toLowerCase() !== 'undefined') {
+                whereCondition.pro_uuid = pro_uuid;
+            }
+            if (prov_isvisible !== undefined) {
+                whereCondition.prov_isvisible = prov_isvisible;
+            }
+            const config = { where: whereCondition };
             console.info(config);
             const products = await SequelizeProductVariation.findAll(config);
             if(!products) {
@@ -241,7 +237,7 @@ export class SequelizeRepository implements ProductVariationRepository {
         }
     }
 
-    async searchProductVariations(searchQuery: string, cmp_uuid?: string): Promise<ProductVariationEntity[] | null> {
+    async searchProductVariations(searchQuery: string, cmp_uuid?: string, prov_isvisible?: boolean): Promise<ProductVariationEntity[] | null> {
         try {
             const whereClause: any = {
                 [Op.or]: [
@@ -252,6 +248,9 @@ export class SequelizeRepository implements ProductVariationRepository {
             };
             if (cmp_uuid && cmp_uuid.toLowerCase() !== 'null' && cmp_uuid.toLowerCase() !== 'undefined' && cmp_uuid !== '') {
                 whereClause.cmp_uuid = cmp_uuid;
+            }
+            if (prov_isvisible !== undefined) {
+                whereClause.prov_isvisible = prov_isvisible;
             }
 
             const variations = await SequelizeProductVariation.findAll({ where: whereClause });

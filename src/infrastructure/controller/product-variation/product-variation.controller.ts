@@ -27,15 +27,21 @@ export class ProductVariationController {
                     error: 'Debe proporcionar un Id de company.'
                 });
             }
+            const rawVisibleParam = req.query.prov_isvisible ?? req.query.is_visible;
+            let prov_isvisible: boolean | undefined = undefined;
+            if (rawVisibleParam !== undefined) {
+                prov_isvisible = rawVisibleParam === 'true' || rawVisibleParam === '1';
+            }
+
             if (page && perPage) {
-                const product = await this.productVariationUseCase.getProductVariations(cmp_uuid, pro_uuid)
+                const product = await this.productVariationUseCase.getProductVariations(cmp_uuid, pro_uuid, prov_isvisible)
                 return res.status(200).send({
                     success: true,
                     message: 'Articulos retornados.',
                     ...paginator(product, page, perPage)
                 });
             } else {
-                const product = await this.productVariationUseCase.getProductVariations(cmp_uuid, pro_uuid)
+                const product = await this.productVariationUseCase.getProductVariations(cmp_uuid, pro_uuid, prov_isvisible)
                 return res.status(200).send({
                     success: true,
                     message: 'Articulos retornados.',
@@ -263,7 +269,13 @@ export class ProductVariationController {
             const page = (req.query.page ? parseInt(req.query.page as string) : null);
             const perPage = (req.query.perPage ? parseInt(req.query.perPage as string) : null);
 
-            const variations = await this.productVariationUseCase.searchProductVariations(query, companyUuid);
+            const rawVisibleParam = req.query.prov_isvisible ?? req.query.is_visible;
+            let prov_isvisible: boolean | undefined = undefined;
+            if (rawVisibleParam !== undefined) {
+                prov_isvisible = rawVisibleParam === 'true' || rawVisibleParam === '1';
+            }
+
+            const variations = await this.productVariationUseCase.searchProductVariations(query, companyUuid, prov_isvisible);
 
             if (page && perPage) {
                 return res.status(200).send({
