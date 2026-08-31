@@ -147,6 +147,7 @@ export class FavoriteController {
     public async getFavoritesCtrl(req: Request, res: Response) {
         try {
             const usr_uuid = (req as any).user?.sub;
+            const withDetails = req.query.details === 'true';
 
             if (!usr_uuid) {
                 return res.status(401).json({
@@ -155,7 +156,9 @@ export class FavoriteController {
                 });
             }
 
-            const result = await this.favoriteUseCase.getFavoritesByUserId(usr_uuid);
+            const result = withDetails 
+                ? await this.favoriteUseCase.getFavoritesWithDetailsByUserId(usr_uuid)
+                : await this.favoriteUseCase.getFavoritesByUserId(usr_uuid);
 
             return res.status(200).json({
                 success: true,

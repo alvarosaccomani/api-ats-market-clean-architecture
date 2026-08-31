@@ -93,4 +93,8 @@ export class FavoriteUseCase {
     public async getFavoritesByUserId(usr_uuid: string): Promise<FavoriteEntity[] | null> {
         return await this.favoriteRepository.getFavoritesByUserId(usr_uuid);
     }
+
+    public async getFavoritesWithDetailsByUserId(usr_uuid: string): Promise<any[] | null> {
+        return await this.favoriteRepository.getFavoritesWithDetailsByUserId(usr_uuid);
+    }
 }
