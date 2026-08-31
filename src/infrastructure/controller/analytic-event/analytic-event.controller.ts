@@ -67,6 +67,11 @@ export class AnalyticEventController {
             // Obtener geolocalización por IP de forma pasiva
             const location = await getIpLocation(clientIp);
 
+            // Obtener dispositivo desde el User-Agent
+            const userAgent = req.headers["user-agent"] || "";
+            const isMobile = /mobile|iphone|ipad|android|blackberry|webos/i.test(userAgent);
+            const device = isMobile ? "Mobile" : "Desktop";
+
             // Mezclar ubicación en metadatos
             let metaObj: any = {};
             if (aev_metadata) {
@@ -78,6 +83,7 @@ export class AnalyticEventController {
             }
             metaObj.location = location;
             metaObj.clientIp = clientIp;
+            metaObj.device = device;
 
             const event = await this.analyticEventUseCase.trackEvent({
                 cmp_uuid,
@@ -109,7 +115,10 @@ export class AnalyticEventController {
                     message: "El parámetro cmp_uuid es obligatorio."
                 });
             }
-            const summary = await this.analyticEventUseCase.getEventsSummary(cmp_uuid);
+            const days = req.query.days ? parseInt(req.query.days as string) : 7;
+            const prov_uuid = req.query.prov_uuid as string | undefined;
+
+            const summary = await this.analyticEventUseCase.getEventsSummary(cmp_uuid, { days, prov_uuid });
             return res.status(200).json({
                 success: true,
                 message: "Resumen de analíticas retornado con éxito.",
