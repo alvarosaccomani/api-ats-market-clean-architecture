@@ -19,6 +19,7 @@ export interface ProductVariationEntity {
     prov_suggestedminimumsellingprice: number;
     prov_averagerating?: number;
     prov_reviewscount?: number;
+    prov_isvisible?: boolean;
     prov_createdat: Date;
     prov_updatedat: Date;
     costsPerSupplier?: CostPerSupplierEntity[];
@@ -30,4 +31,4 @@ export interface ProductVariationEntity {
 }
 
 //Update
-export type ProductVariationUpdateData = Pick<ProductVariationEntity, 'prov_code' | 'prov_sku' | 'prov_name' | 'prov_description' | 'prov_image' | 'mat_uuid' | 'prov_color' | 'prov_size' | 'prov_stock' | 'prov_suggestedminimumsellingprice'>;
+export type ProductVariationUpdateData = Pick<ProductVariationEntity, 'prov_code' | 'prov_sku' | 'prov_name' | 'prov_description' | 'prov_image' | 'mat_uuid' | 'prov_color' | 'prov_size' | 'prov_stock' | 'prov_suggestedminimumsellingprice' | 'prov_isvisible'>;

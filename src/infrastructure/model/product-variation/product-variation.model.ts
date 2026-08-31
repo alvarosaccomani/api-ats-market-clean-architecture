@@ -19,6 +19,7 @@ export class SequelizeProductVariation extends Model<ProductVariationEntity, Omi
   declare prov_suggestedminimumsellingprice: number;
   declare prov_averagerating?: number;
   declare prov_reviewscount?: number;
+  declare prov_isvisible: boolean;
   declare prov_createdat: Date;
   declare prov_updatedat: Date;
 }
@@ -78,6 +79,11 @@ SequelizeProductVariation.init({
   prov_suggestedminimumsellingprice: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true
+  },
+  prov_isvisible: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: true
   },
   prov_createdat: {
     type: DataTypes.DATE,

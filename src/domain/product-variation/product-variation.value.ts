@@ -19,6 +19,7 @@ export class ProductVariationValue implements ProductVariationEntity {
     prov_suggestedminimumsellingprice: number;
     prov_averagerating?: number;
     prov_reviewscount?: number;
+    prov_isvisible: boolean;
     prov_createdat: Date;
     prov_updatedat: Date;
     costsPerSupplier?: CostPerSupplierEntity[];
@@ -39,6 +40,7 @@ export class ProductVariationValue implements ProductVariationEntity {
             prov_suggestedminimumsellingprice,
             prov_averagerating,
             prov_reviewscount,
+            prov_isvisible,
             prov_createdat,
             prov_updatedat,
             costsPerSupplier
@@ -58,6 +60,7 @@ export class ProductVariationValue implements ProductVariationEntity {
             prov_suggestedminimumsellingprice: number,
             prov_averagerating?: number,
             prov_reviewscount?: number,
+            prov_isvisible?: boolean,
             prov_createdat?: Date,
             prov_updatedat?: Date,
             costsPerSupplier?: CostPerSupplierEntity[]
@@ -77,6 +80,7 @@ export class ProductVariationValue implements ProductVariationEntity {
         this.prov_suggestedminimumsellingprice = prov_suggestedminimumsellingprice;
         this.prov_averagerating = prov_averagerating ?? 0;
         this.prov_reviewscount = prov_reviewscount ?? 0;
+        this.prov_isvisible = prov_isvisible !== undefined ? prov_isvisible : true;
         this.prov_createdat = prov_createdat ?? moment().toDate();
         this.prov_updatedat = prov_updatedat ?? moment().toDate();
         this.costsPerSupplier = costsPerSupplier ?? [];
