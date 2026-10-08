@@ -1,0 +1,20 @@
+import { Express } from "express";
+import { SequelizePaymentWebhookLogRepository } from "../../repository/payment-webhook-log/sequelize-payment-webhook-log.repository";
+import { SequelizeRepository as SequelizeOrderRepository } from "../../repository/order/sequelize-order.repository";
+import { PaymentWebhookLogUseCase } from "../../../application/payment-webhook-log/payment-webhook-log-use-case";
+import { MercadoPagoWebhookController } from "../../controller/mercadopago-webhook/mercadopago-webhook.controller";
+import SocketAdapter from "../../services/socketAdapter";
+
+function configureMercadoPagoWebhookRoutes(app: Express, socketAdapter: SocketAdapter) {
+    const webhookLogRepository = new SequelizePaymentWebhookLogRepository();
+    const orderRepository = new SequelizeOrderRepository();
+
+    const webhookUseCase = new PaymentWebhookLogUseCase(webhookLogRepository, orderRepository);
+    const webhookCtrl = new MercadoPagoWebhookController(webhookUseCase, socketAdapter);
+
+    // Ruta de webhook pública que recibe notificaciones POST y GET de Mercado Pago
+    app.post(`/${process.env.BASE_URL_API}/payments/mercadopago/webhook`, webhookCtrl.receiveWebhookCtrl);
+    app.get(`/${process.env.BASE_URL_API}/payments/mercadopago/webhook`, webhookCtrl.receiveWebhookCtrl);
+}
+
+export default configureMercadoPagoWebhookRoutes;
