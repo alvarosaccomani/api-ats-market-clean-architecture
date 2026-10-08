@@ -19,6 +19,9 @@ services:
       - URL_CONFIRMATION
       - URL_RESET
       - CENTRAL_API_URL
+      - MP_ACCESS_TOKEN
+      - MP_PUBLIC_KEY
+      - MP_WEBHOOK_SECRET
     networks:
       - pgvector_default
 
