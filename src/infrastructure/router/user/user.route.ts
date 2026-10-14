@@ -26,10 +26,14 @@ function configureUserRoutes(app: Express, socketAdapter: SocketAdapter) {
     
     /**
      * @swagger
-     * /api/user:
+     * /users:
      *   get:
      *     summary: Obtiene la lista de usuarios registrados.
      *     description: Retorna una lista de todos los usuarios registrados en el sistema.
+     *     tags:
+     *       - Users
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: Operación exitosa. Retorna un objeto con los datos de los usuarios.
@@ -51,8 +55,12 @@ function configureUserRoutes(app: Express, socketAdapter: SocketAdapter) {
      *                   description: Lista de usuarios registrados.
      *                   items:
      *                     $ref: '#/components/schemas/UserEntity'
-     *     security:
-     *       - bearerAuth: []
+     *       401:
+     *         description: Token no provisto o inválido.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
      */
     app.get(`/${process.env.BASE_URL_API}/users/:filter?/:page?/:perPage?`, authMiddleware, userCtrl.getAllCtrl);
     app.get(`/${process.env.BASE_URL_API}/user/:usr_uuid`, authMiddleware, userCtrl.getCtrl);
