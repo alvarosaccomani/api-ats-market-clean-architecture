@@ -24,7 +24,95 @@ function configureCategoryRoutes(app: Express, socketAdapter: SocketAdapter) {
     
     const categoryCtrl = new CategoryController(categoryUseCase, socketAdapter);
     
+    /**
+     * @swagger
+     * /categories/{cmp_uuid}:
+     *   get:
+     *     summary: Obtener lista de categorías de una empresa
+     *     tags:
+     *       - Categories
+     *     parameters:
+     *       - in: path
+     *         name: cmp_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: query
+     *         name: itm_uuid
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: query
+     *         name: filter
+     *         schema:
+     *           type: string
+     *       - in: query
+     *         name: page
+     *         schema:
+     *           type: integer
+     *       - in: query
+     *         name: perPage
+     *         schema:
+     *           type: integer
+     *     responses:
+     *       200:
+     *         description: Categorías retornadas.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                 data:
+     *                   type: array
+     *                   items:
+     *                     $ref: '#/components/schemas/CategoryEntity'
+     */
     app.get(`/${process.env.BASE_URL_API}/categories/:cmp_uuid/:itm_uuid?/:filter?/:page?/:perPage?`, categoryCtrl.getAllCtrl);
+
+    /**
+     * @swagger
+     * /category/{cmp_uuid}/{cat_uuid}/{itm_uuid}:
+     *   get:
+     *     summary: Obtener detalle de una categoría
+     *     tags:
+     *       - Categories
+     *     parameters:
+     *       - in: path
+     *         name: cmp_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: path
+     *         name: cat_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: path
+     *         name: itm_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *     responses:
+     *       200:
+     *         description: Categoría retornada.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                 data:
+     *                   $ref: '#/components/schemas/CategoryEntity'
+     *       400:
+     *         description: Categoría no encontrada.
+     */
     app.get(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, categoryCtrl.getCtrl);
     
     /**
@@ -42,21 +130,19 @@ function configureCategoryRoutes(app: Express, socketAdapter: SocketAdapter) {
      *       content:
      *         application/json:
      *           schema:
-     *             type: object
-     *             required:
-     *               - cmp_uuid
-     *               - cat_name
-     *             properties:
-     *               cmp_uuid:
-     *                 type: string
-     *                 format: uuid
-     *                 example: 550e8400-e29b-41d4-a716-446655440000
-     *               cat_name:
-     *                 type: string
-     *                 example: Bebidas
+     *             $ref: '#/components/schemas/CreateCategoryDto'
      *     responses:
-     *       201:
+     *       200:
      *         description: Categoría creada con éxito.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                 data:
+     *                   $ref: '#/components/schemas/CategoryEntity'
      *       401:
      *         description: No autorizado - Token Bearer inválido o ausente.
      *         content:
@@ -65,7 +151,83 @@ function configureCategoryRoutes(app: Express, socketAdapter: SocketAdapter) {
      *               $ref: '#/components/schemas/ErrorResponse'
      */
     app.post(`/${process.env.BASE_URL_API}/category`, authMiddleware, categoryCtrl.insertCtrl);
+
+    /**
+     * @swagger
+     * /category/{cmp_uuid}/{cat_uuid}/{itm_uuid}:
+     *   put:
+     *     summary: Actualizar una categoría
+     *     tags:
+     *       - Categories
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: cmp_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: path
+     *         name: cat_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: path
+     *         name: itm_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/UpdateCategoryDto'
+     *     responses:
+     *       200:
+     *         description: Categoría actualizada.
+     *       401:
+     *         description: No autorizado.
+     */
     app.put(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, authMiddleware, categoryCtrl.updateCtrl);
+
+    /**
+     * @swagger
+     * /category/{cmp_uuid}/{cat_uuid}/{itm_uuid}:
+     *   delete:
+     *     summary: Eliminar una categoría
+     *     tags:
+     *       - Categories
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: path
+     *         name: cmp_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: path
+     *         name: cat_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: path
+     *         name: itm_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *     responses:
+     *       200:
+     *         description: Categoría eliminada con éxito.
+     *       401:
+     *         description: No autorizado.
+     */
     app.delete(`/${process.env.BASE_URL_API}/category/:cmp_uuid/:cat_uuid/:itm_uuid`, authMiddleware, categoryCtrl.deleteCtrl);
 }
 
