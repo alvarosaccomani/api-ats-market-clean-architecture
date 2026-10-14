@@ -15,6 +15,34 @@ function configureAuthRoutes(app: Express, socketAdapter: SocketAdapter) {
     
     const authCtrl = new AuthController(authUseCase, userUseCase);
     
+    /**
+     * @swagger
+     * /login:
+     *   post:
+     *     summary: Iniciar sesión de usuario
+     *     description: Autentica al usuario mediante credenciales (usuario/email y contraseña) y retorna el token JWT.
+     *     tags:
+     *       - Auth
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/LoginDto'
+     *     responses:
+     *       200:
+     *         description: Inicio de sesión exitoso.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/AuthSuccessResponse'
+     *       400:
+     *         description: Credenciales incorrectas o error en la petición.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
+     */
     app.post(`/${process.env.BASE_URL_API}/login`, authCtrl.loginCtrl);
     app.post(`/${process.env.BASE_URL_API}/register`, authCtrl.saveCtrl);
     app.post(`/${process.env.BASE_URL_API}/confirm-account`, authCtrl.confirmCtrl);
