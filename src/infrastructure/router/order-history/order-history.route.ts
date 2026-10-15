@@ -20,7 +20,51 @@ function configureOrderHistoryRoutes(app: Express, socketAdapter: SocketAdapter)
     */
     const orderHistoryCtrl = new OrderHistoryController(orderHistoryUseCase, socketAdapter);
     
-    // Ruta de consulta de trazabilidad
+    /**
+     * @swagger
+     * /order-history/{cmp_uuid}/{ord_uuid}:
+     *   get:
+     *     summary: Consultar la trazabilidad / historial de cambios de una orden
+     *     tags:
+     *       - OrderHistory
+     *     parameters:
+     *       - in: path
+     *         name: cmp_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: path
+     *         name: ord_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: query
+     *         name: page
+     *         schema:
+     *           type: integer
+     *       - in: query
+     *         name: perPage
+     *         schema:
+     *           type: integer
+     *     responses:
+     *       200:
+     *         description: Historial de la orden retornado.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                 data:
+     *                   type: array
+     *                   items:
+     *                     $ref: '#/components/schemas/OrderHistoryEntity'
+     *       400:
+     *         description: Error al recuperar el historial.
+     */
     app.get(`/${process.env.BASE_URL_API}/order-history/:cmp_uuid/:ord_uuid/:page?/:perPage?`, orderHistoryCtrl.getAllCtrl);
 }
 
