@@ -20,8 +20,81 @@ function configureMessageRoutes(app: Express, socketAdapter: SocketAdapter) {
     */
     const messageCtrl = new MessageController(messageUseCase, socketAdapter);
     
-    // Rutas de mensajes
+    /**
+     * @swagger
+     * /messages/{cmp_uuid}/{ord_uuid}:
+     *   get:
+     *     summary: Obtener mensajes de chat vinculados a una orden
+     *     tags:
+     *       - Messages
+     *     parameters:
+     *       - in: path
+     *         name: cmp_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: path
+     *         name: ord_uuid
+     *         required: true
+     *         schema:
+     *           type: string
+     *           format: uuid
+     *       - in: query
+     *         name: page
+     *         schema:
+     *           type: integer
+     *       - in: query
+     *         name: perPage
+     *         schema:
+     *           type: integer
+     *     responses:
+     *       200:
+     *         description: Mensajes retornados.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                 data:
+     *                   type: array
+     *                   items:
+     *                     $ref: '#/components/schemas/MessageEntity'
+     *       400:
+     *         description: Error al recuperar los mensajes.
+     */
     app.get(`/${process.env.BASE_URL_API}/messages/:cmp_uuid/:ord_uuid/:page?/:perPage?`, messageCtrl.getMessagesCtrl);
+
+    /**
+     * @swagger
+     * /message:
+     *   post:
+     *     summary: Enviar un nuevo mensaje en el chat de una orden
+     *     tags:
+     *       - Messages
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/CreateMessageDto'
+     *     responses:
+     *       200:
+     *         description: Mensaje enviado con éxito.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                 data:
+     *                   $ref: '#/components/schemas/MessageEntity'
+     *       400:
+     *         description: Error al enviar el mensaje.
+     */
     app.post(`/${process.env.BASE_URL_API}/message`, messageCtrl.createMessageCtrl);
 }
 
