@@ -3,6 +3,7 @@ import { R2StorageService } from "../../services/r2-storage.service";
 import { StorageUseCase } from "../../../application/storage/storage-use-case";
 import { StorageController } from "../../controller/storage/storage.controller";
 import SocketAdapter from "../../services/socketAdapter";
+import { authMiddleware } from "../../middleware/auth.middleware";
 
 function configureStorageRoutes(app: Express, _socketAdapter?: SocketAdapter) {
     /*
@@ -33,6 +34,8 @@ function configureStorageRoutes(app: Express, _socketAdapter?: SocketAdapter) {
      *       - Storage
      *     summary: Obtener URL prefirmada para subida directa a Cloudflare R2
      *     description: Genera una URL prefirmada (Presigned URL) para que el frontend suba archivos binarios directamente a Cloudflare R2 mediante HTTP PUT sin pasar por el servidor Node.js.
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -40,13 +43,9 @@ function configureStorageRoutes(app: Express, _socketAdapter?: SocketAdapter) {
      *           schema:
      *             type: object
      *             required:
-     *               - usr_uuid
      *               - filename
      *               - contentType
      *             properties:
-     *               usr_uuid:
-     *                 type: string
-     *                 description: UUID del usuario autenticado que sube el archivo
      *               filename:
      *                 type: string
      *                 example: ticket_123.jpg
@@ -66,38 +65,12 @@ function configureStorageRoutes(app: Express, _socketAdapter?: SocketAdapter) {
      *     responses:
      *       200:
      *         description: URL prefirmada generada exitosamente.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 success:
-     *                   type: boolean
-     *                   example: true
-     *                 message:
-     *                   type: string
-     *                 data:
-     *                   type: object
-     *                   properties:
-     *                     uploadUrl:
-     *                       type: string
-     *                       description: URL prefirmada para hacer el PUT del archivo
-     *                     key:
-     *                       type: string
-     *                       description: Clave única asignada al archivo en el bucket
-     *                     bucket:
-     *                       type: string
-     *                     bucketType:
-     *                       type: string
-     *                     publicUrl:
-     *                       type: string
-     *                       nullable: true
-     *                     expiresIn:
-     *                       type: number
+     *       401:
+     *         description: Token no provisto o inválido.
      *       400:
      *         description: Datos inválidos o tipo MIME no permitido.
      */
-    app.post(`/${process.env.BASE_URL_API}/storage/presigned-upload`, storageCtrl.getUploadPresignedUrlCtrl);
+    app.post(`/${process.env.BASE_URL_API}/storage/presigned-upload`, authMiddleware, storageCtrl.getUploadPresignedUrlCtrl);
 
     /**
      * @swagger
@@ -107,6 +80,8 @@ function configureStorageRoutes(app: Express, _socketAdapter?: SocketAdapter) {
      *       - Storage
      *     summary: Obtener URL prefirmada temporal para visualizar o descargar un archivo privado
      *     description: Genera una URL temporal firmada para acceder a objetos alojados en el bucket privado.
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -126,10 +101,12 @@ function configureStorageRoutes(app: Express, _socketAdapter?: SocketAdapter) {
      *     responses:
      *       200:
      *         description: URL prefirmada de lectura generada exitosamente.
+     *       401:
+     *         description: Token no provisto o inválido.
      *       400:
      *         description: Parámetros inválidos.
      */
-    app.post(`/${process.env.BASE_URL_API}/storage/presigned-download`, storageCtrl.getDownloadPresignedUrlCtrl);
+    app.post(`/${process.env.BASE_URL_API}/storage/presigned-download`, authMiddleware, storageCtrl.getDownloadPresignedUrlCtrl);
 }
 
 export default configureStorageRoutes;
