@@ -9,13 +9,26 @@ export class StorageController {
 
     /**
      * Endpoint para solicitar una URL prefirmada de subida (PUT) directa a Cloudflare R2.
+     * Extrae el identificador del usuario de la sesión autenticada (req.user) para evitar spoofing.
      */
     public async getUploadPresignedUrlCtrl(req: Request, res: Response) {
         try {
-            const { usr_uuid, filename, contentType, bucketType, folder, expiresInSeconds } = req.body;
+            const authUser = (req as any).user;
+            // El sub del token contiene el usr_uuid
+            const authenticatedUsrUuid = authUser?.sub || authUser?.usr_uuid;
+            const { usr_uuid: bodyUsrUuid, filename, contentType, bucketType, folder, expiresInSeconds } = req.body;
+
+            const effectiveUsrUuid = authenticatedUsrUuid || bodyUsrUuid;
+
+            if (!effectiveUsrUuid) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Usuario no autenticado o identificador de usuario no provisto.',
+                });
+            }
 
             const result = await this.storageUseCase.getPresignedUploadUrl({
-                usr_uuid,
+                usr_uuid: effectiveUsrUuid,
                 filename,
                 contentType,
                 bucketType,
