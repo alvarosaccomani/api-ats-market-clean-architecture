@@ -1,6 +1,7 @@
 import { Express } from "express";
 import { SequelizeRepository as SequelizeCompanyRepository } from "../../repository/company/sequelize-company.repository";
 import { CompanyUseCase } from "../../../application/company/company-use-case";
+import { R2StorageService } from "../../services/r2-storage.service";
 import { CompanyController } from "../../controller/company/company.controller";
 import SocketAdapter from "../../services/socketAdapter";
 import { authMiddleware } from "../../middleware/auth.middleware";
@@ -16,7 +17,8 @@ function configureCompanyRoutes(app: Express, socketAdapter: SocketAdapter) {
     *   Iniciar casos de uso
     */
     
-    const companyUseCase = new CompanyUseCase(sequelizeCompanyRepository);
+    const r2StorageService = new R2StorageService();
+    const companyUseCase = new CompanyUseCase(sequelizeCompanyRepository, r2StorageService);
     
     /*
     *   Iniciar controller
