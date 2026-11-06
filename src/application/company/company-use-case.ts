@@ -1,10 +1,12 @@
+import { IStorageService } from '../../domain/storage/storage.service';
 import { CompanyRepository } from "../../domain/company/company.repository";
 import { CompanyValue } from "../../domain/company/company.value";
 import { TimezoneConverter } from "../../infrastructure/utils/TimezoneConverter";
 
 export class CompanyUseCase {
     constructor(
-        private readonly companyRepository: CompanyRepository
+        private readonly companyRepository: CompanyRepository,
+        private readonly storageService?: IStorageService
     ) {
         this.getCompanies = this.getCompanies.bind(this);
         this.getDetailCompany = this.getDetailCompany.bind(this);
@@ -124,6 +126,22 @@ export class CompanyUseCase {
 
     public async updateCompany(cmp_uuid: string, { cmp_name, cmp_address, cmp_lat, cmp_lng, cmp_phone, cmp_email, cmp_slug, cmp_logo, cmp_banner, cmp_description, cmp_currency, cmp_whatsapp, cmp_instagram, cmp_facebook, cmp_allowbackorders, cmp_primarycolor, cmp_isfeatured, cmp_status } : { cmp_name: string, cmp_address: string, cmp_lat: number, cmp_lng: number, cmp_phone: string, cmp_email: string, cmp_slug: string, cmp_logo: string, cmp_banner: string, cmp_description: string, cmp_currency: string, cmp_whatsapp: string, cmp_instagram: string, cmp_facebook: string, cmp_allowbackorders: boolean, cmp_primarycolor: string, cmp_isfeatured: boolean, cmp_status: string }) {
         try {
+            if (this.storageService) {
+                const currentCompany = await this.companyRepository.findCompanyById(cmp_uuid);
+                const publicBucket = process.env.R2_BUCKET_PUBLIC || 'ats-public-assets';
+                if (currentCompany) {
+                    if (cmp_logo && currentCompany.cmp_logo && currentCompany.cmp_logo !== cmp_logo && !currentCompany.cmp_logo.startsWith('data:')) {
+                        this.storageService.deleteFile({ bucket: publicBucket, key: currentCompany.cmp_logo }).catch((err: any) => {
+                            console.warn('[StorageCleanup] No se pudo borrar logo viejo de R2:', err.message);
+                        });
+                    }
+                    if (cmp_banner && currentCompany.cmp_banner && currentCompany.cmp_banner !== cmp_banner && !currentCompany.cmp_banner.startsWith('data:')) {
+                        this.storageService.deleteFile({ bucket: publicBucket, key: currentCompany.cmp_banner }).catch((err: any) => {
+                            console.warn('[StorageCleanup] No se pudo borrar banner viejo de R2:', err.message);
+                        });
+                    }
+                }
+            }
             const companyUpdated = await this.companyRepository.updateCompany(cmp_uuid, { cmp_name, cmp_address, cmp_lat, cmp_lng, cmp_phone, cmp_email, cmp_slug, cmp_logo, cmp_banner, cmp_description, cmp_currency, cmp_whatsapp, cmp_instagram, cmp_facebook, cmp_allowbackorders, cmp_primarycolor, cmp_isfeatured, cmp_status });
             if(!companyUpdated) {
                 throw new Error(`No se pudo actualizar la empresa.`);
@@ -159,7 +177,21 @@ export class CompanyUseCase {
 
     public async deleteCompany(cmp_uuid: string) {
         try {
+            const currentCompany = await this.companyRepository.findCompanyById(cmp_uuid);
             const companyDeleted = await this.companyRepository.deleteCompany(cmp_uuid);
+            if (companyDeleted && this.storageService && currentCompany) {
+                const publicBucket = process.env.R2_BUCKET_PUBLIC || 'ats-public-assets';
+                if (currentCompany.cmp_logo && !currentCompany.cmp_logo.startsWith('data:')) {
+                    this.storageService.deleteFile({ bucket: publicBucket, key: currentCompany.cmp_logo }).catch((err: any) => {
+                        console.warn('[StorageCleanup] No se pudo borrar logo en deleteCompany:', err.message);
+                    });
+                }
+                if (currentCompany.cmp_banner && !currentCompany.cmp_banner.startsWith('data:')) {
+                    this.storageService.deleteFile({ bucket: publicBucket, key: currentCompany.cmp_banner }).catch((err: any) => {
+                        console.warn('[StorageCleanup] No se pudo borrar banner en deleteCompany:', err.message);
+                    });
+                }
+            }
             if(!companyDeleted) {
                 throw new Error(`No se pudo eliminar la empresa.`);
             }
