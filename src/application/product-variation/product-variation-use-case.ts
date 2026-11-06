@@ -1,3 +1,4 @@
+import { IStorageService } from '../../domain/storage/storage.service';
 import { v4 as uuid } from "uuid";
 import { ProductVariationRepository } from "../../domain/product-variation/product-variation.repository";
 import { ProductVariationValue } from "../../domain/product-variation/product-variation.value";
@@ -8,7 +9,8 @@ import { CostPerSupplierRepository } from "../../domain/cost-per-supplier/cost-p
 export class ProductVariationUseCase {
     constructor(
         private readonly productVariationRepository: ProductVariationRepository,
-        private readonly costPerSupplierRepository: CostPerSupplierRepository
+        private readonly costPerSupplierRepository: CostPerSupplierRepository,
+        private readonly storageService?: IStorageService
     ) {
         this.getProductVariations = this.getProductVariations.bind(this);
         this.getDetailProductVariation = this.getDetailProductVariation.bind(this);
